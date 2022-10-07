@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faça o login para acessar a plataforma</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap');
+    </style>
+    <link rel="stylesheet" href="../styles/login.css">
+    <script src="../scripts/login.js" defer></script>
+</head>
+<body>
+    <div id="loginSquare">
+        <div id="formDiv">
+            <h1>Faça o login para acessar a plataforma</h1>
+            <form action="/login" method="POST">
+                <input type="text" name="username" placeholder="Nome de usuário"><br>
+                <input type="password" name="password" placeholder="Senha"><br>
+                <input type="submit" value="Entrar">
+            </form>    
+        </div>
+    </div>
+</body>
+</html>

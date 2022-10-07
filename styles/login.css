@@ -1,0 +1,38 @@
+body{ /* Align all items to the center */
+    background-color: rgb(37, 37, 37);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 75vh;
+}
+
+#formDiv{
+    background-color: rgb(63, 63, 63);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#formDiv input{
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+}
+
+#formDiv input[type="submit"]{
+    background-color: rgb(0, 102, 0);
+    border: 1px solid white;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+}
