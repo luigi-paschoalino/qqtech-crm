@@ -2,11 +2,16 @@ body{ /* Align all items to the center */
     background-color: rgb(37, 37, 37);
     color: white;
     font-family: 'Poppins', sans-serif;
-
     display: flex;
     justify-content: center;
     align-items: center;
     height: 75vh;
+}
+
+h1{
+    text-align: center;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 #formDiv{
