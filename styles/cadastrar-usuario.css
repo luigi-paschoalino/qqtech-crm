@@ -1,7 +1,6 @@
-h1{
-    text-align: center;
-    margin-left: 10px;
-    margin-right: 10px;
+h2{
+    font-size: 2rem;
+    margin-bottom: 1rem;
 }
 
 #formDiv{
@@ -11,23 +10,37 @@ h1{
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 1rem;
 }
 
-#formDiv input{
+#formDiv input[type="text"], #formDiv input[type="password"], #formDiv input[type="email"]{
     margin: 10px;
     padding: 10px;
     border-radius: 5px;
     border: none;
     outline: none;
+    width: 90%;
+    align-items: center;
 }
 
 #formDiv input[type="submit"]{
     background-color: rgb(0, 102, 0);
     border: 1px solid white;
+    border-radius: 5px;
     color: white;
     font-weight: bold;
     cursor: pointer;
     display: flex;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+#formDiv select{
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
 }

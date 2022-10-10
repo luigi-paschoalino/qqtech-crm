@@ -1,0 +1,39 @@
+body{
+    flex-direction: column;
+}
+
+#colunasCRM{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    width: 80%;
+    max-width: 1300px;
+    padding: 0 20px;
+}
+
+.colunaCRM{
+    text-align: center;
+    background-color: rgb(240, 240, 255);
+    width: 33%;
+    border: 1px black solid;
+    color: black;
+    border-radius: 15px;
+}
+
+.crm{
+    background-color: rgb(255, 255, 255);
+    padding: 10px;
+    color: black;
+    font-weight: bolder;
+}
+
+.crm .crmDates{
+    color: rgb(153, 153, 153)
+}
+
+.crm .crmDetails{
+    color: rgb(40, 139, 252);
+}

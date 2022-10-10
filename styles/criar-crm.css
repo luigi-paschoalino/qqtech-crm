@@ -1,17 +1,10 @@
-body{
-    background-color: rgb(82, 82, 82);
-    color: #fff;
-    font-family: 'Open Sans', sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-}
-
 h2{text-align: center;}
 
 textarea{
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 7px;
+    font-size: large;
 }
 
 #cadastro{text-align: center;}

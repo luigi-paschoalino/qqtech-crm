@@ -1,0 +1,45 @@
+#infoCRM{
+    margin:auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem;
+    max-width: 70vw;
+    font-size: 110%;
+}
+
+table{
+    margin: auto;
+    border-collapse: collapse;
+    border: 1px solid black;
+    width: 100%;
+    background-color: rgb(47, 47, 47);
+}
+
+th, td{
+    border: 1px solid black;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+a{
+    color: rgb(66, 148, 255);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover{
+    text-decoration: underline;
+}
+
+.texto{
+    background-color: whitesmoke;
+    color: black;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    font-weight: bold;
+}
