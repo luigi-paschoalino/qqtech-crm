@@ -4,8 +4,36 @@
     flex-direction: column;
     justify-content: center;
     padding: 1rem;
-    max-width: 70vw;
+    max-width: 80vw;
     font-size: 110%;
+}
+
+#botoesCriador{
+    display: flex;
+    flex-direction: column;
+}
+
+#infoCRM #infoCRM-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button, input[type="submit"]{
+    margin: 10px;
+    padding: 10px;
+    background-color: rgb(100, 100, 100);
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+    color: white;
+    font-weight: bold;
+}
+
+textarea{
+    width: 100%;
+    resize: none;
+    font-size: large;
 }
 
 table{
@@ -42,4 +70,8 @@ a:hover{
     margin-right: auto;
     align-items: center;
     font-weight: bold;
+}
+
+#divJust{
+    /*display: none;*/
 }

@@ -37,3 +37,12 @@ body{
 .crm .crmDetails{
     color: rgb(40, 139, 252);
 }
+
+@media screen and (max-width: 900px){
+    #colunasCRM{
+        flex-direction: column;
+    }
+    .colunaCRM{
+        width: 90%;
+    }
+}

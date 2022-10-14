@@ -5,14 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Informações do requerimento</title>
-    <link rel="stylesheet" href="../styles/common-style.css">
-    <link rel="stylesheet" href="../styles/info-crm.css">
-    <script src="../scripts/info-crm.js" defer></script>
+    <link rel="stylesheet" href="common-style.css">
+    <link rel="stylesheet" href="info-crm.css">
+    <script src="info-crm.js" defer></script>
 </head>
 <body>
     <div id="infoCRM">
         <div id="infoCRM-header">
             <h1>Informações do requerimento</h1>
+            <button id="changelog">Histórico de versões</button>
         </div>
         <h3>Descrição:</h3>
         <div id="descricao" class="texto">
@@ -71,6 +72,17 @@
                 </tr>
             </table>
         </div>
+        <h3>Deixe o seu feedback da CRM</h3>
+        <form action="/infoCRM" method="POST" id="formSetor">
+            <label for="feedback">Feedback:</label>
+            <input type="radio" name="feedback" value="Aprovado">Aprovado
+            <input type="radio" name="feedback" value="Reprovado">Reprovado<br>
+            <div id="divJust">
+                <p>Justificativa:</p>
+                <textarea name="justificativa" id="justificativa" rows="10"></textarea><br>
+            </div>
+            <button type="submit">Enviar feedback</button>
+        </form>
     </div>
 </body>
 </html>

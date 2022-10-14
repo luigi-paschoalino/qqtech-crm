@@ -5,6 +5,8 @@ textarea{
     -moz-border-radius: 5px;
     border-radius: 7px;
     font-size: large;
+    resize: none;
+    width: 100%;
 }
 
 #cadastro{text-align: center;}
@@ -51,3 +53,9 @@ textarea{
 #cancelar:hover{background-color: rgb(220, 0, 0);}
 
 #enviar:hover{background-color: rgb(0, 220, 0);}
+
+@media screen and (max-width: 600px) {
+    #cadastro{
+        width: 90%;
+    }
+}

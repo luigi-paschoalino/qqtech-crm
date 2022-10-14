@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Informações do requerimento</title>
+    <link rel="stylesheet" href="common-style.css">
+    <link rel="stylesheet" href="info-crm.css">
+    <script src="info-crm.js" defer></script>
+</head>
+<body>
+    <div id="infoCRM">
+        <div id="infoCRM-header">
+            <h1>Informações do requerimento</h1>
+            <button id="changelog">Histórico de versões</button>
+        </div>
+        <h3>Descrição:</h3>
+        <div id="descricao" class="texto">
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident dicta eligendi iste, architecto exercitationem molestiae amet, temporibus sequi doloribus facere nulla ut fugit itaque consequatur voluptas cum, mollitia placeat reiciendis laboriosam nam? Dolor praesentium unde, id, sapiente, est nam repellendus perferendis rem repudiandae sed molestiae possimus reprehenderit enim saepe quis.</p>
+        </div>
+        <h3>Objetivo:</h3>
+        <div id="objetivo" class="texto">
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi quas, soluta error earum ex itaque, fugit libero asperiores quaerat exercitationem aspernatur enim cupiditate modi debitis sit nisi harum corporis repudiandae repellendus, consectetur culpa. Sed expedita numquam non. Similique, distinctio excepturi pariatur praesentium officiis necessitatibus earum libero nesciunt magnam, non exercitationem accusantium. Earum assumenda doloribus quos error? Blanditiis, libero? Esse dolore praesentium modi harum impedit molestiae ratione, voluptatem, labore quos libero nulla. Voluptatem animi voluptatum, dolorum earum deserunt corrupti veniam molestiae. Quae amet ab dolorem adipisci ea, inventore beatae. Impedit eius consequatur optio fugit quos possimus in laboriosam, expedita qui! Itaque!</p>
+        </div>
+        <h3>Justificativa:</h3>
+        <div id="justificativa" class="texto">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum nihil reiciendis dolorum ipsam. Dolorem qui aut unde quia alias, reprehenderit pariatur quis minus accusamus esse dolor est praesentium dignissimos minima nostrum animi maiores distinctio doloribus dolore ex velit corporis quidem dolorum perspiciatis. Voluptatem vitae distinctio corporis eius iusto deleniti optio beatae assumenda quo rerum nostrum explicabo pariatur cum, excepturi, quam eligendi sunt alias dolor doloremque dolore corrupti vel accusantium modi. Exercitationem assumenda architecto dolore labore beatae placeat, quisquam molestiae quam sunt libero? Asperiores tempore cupiditate nulla vel maiores veritatis dolores, temporibus obcaecati voluptatem! Sint recusandae quisquam magnam? Quia saepe ea excepturi corrupti assumenda, qui quaerat odio obcaecati corporis. Voluptates voluptatibus optio a sunt quasi enim maxime, repellat quae itaque quas culpa cumque earum iure nesciunt doloremque dolore quam unde perferendis dolorum inventore eligendi nostrum autem molestias? Ab, quia. Culpa architecto illo possimus adipisci commodi incidunt veniam eaque exercitationem nulla, nostrum voluptate. Molestiae ab ratione, quaerat impedit odit similique magni amet neque ipsam officia? Quo debitis praesentium architecto et nemo quos excepturi. Voluptate molestias debitis fugit corrupti, soluta dignissimos aspernatur nulla quia repudiandae voluptatem pariatur aliquam voluptates ex exercitationem provident? Eos fugit, doloremque rerum aliquam voluptas molestiae architecto debitis quos. Maiores voluptas eveniet iusto odio voluptates possimus nesciunt temporibus quas quisquam? Voluptatibus consequatur minus facilis quaerat ratione similique beatae animi, repudiandae magnam dolorem. Consequuntur provident, sed cum exercitationem temporibus eum accusantium at fugiat facilis culpa. Voluptate odit ullam dignissimos esse perferendis commodi voluptatem, pariatur eveniet fuga eaque quidem. Consequuntur, id porro? Eum ex optio itaque facilis illum ducimus ipsam officiis molestias corporis odit veniam quisquam voluptatibus, magni nisi, dolores tempore? Repellat voluptatibus voluptatem similique magni perferendis, ab repellendus culpa cum fugit consectetur minus nam est nobis, exercitationem aut ad harum illo aliquid praesentium tempore eligendi voluptatum reiciendis? Distinctio quasi eveniet veniam?</p>
+        </div>
+        <h3>Documentos:</h3>
+        <div id="documentos">
+            <ul>
+                <li><a href="#">Documento 1</a></li>
+                <li><a href="#">Documento 2</a></li>
+                <li><a href="#">Documento 3</a></li>
+                <li><a href="#">Documento 4</a></li>
+                <li><a href="#">Documento 5</a></li>
+            </ul>
+        </div>
+        <h3>Setores envolvidos</h3>
+        <div id="setoresTabela">
+            <table>
+                <tr>
+                    <th>Setor</th>
+                    <th>Feedback do setor</th>
+                    <th>Justificativa</th>
+                </tr>
+                <tr>
+                    <td>Setor 1</td>
+                    <td>Feedback setor 1</td>
+                    <td>Justificativa</td>
+                </tr>
+                <tr>
+                    <td>Setor 2</td>
+                    <td>Feedback setor 2</td>
+                    <td>Justificativa</td>
+                </tr>
+                <tr>
+                    <td>Setor 3</td>
+                    <td>Feedback setor 3</td>
+                    <td>Justificativa</td>
+                </tr>
+                <tr>
+                    <td>Setor 4</td>
+                    <td>Feedback setor 4</td>
+                    <td>Justificativa</td>
+                </tr>
+                <tr>
+                    <td>Setor 5</td>
+                    <td>Feedback setor 5</td>
+                    <td>Justificativa</td>
+                </tr>
+            </table>
+        </div>
+        <h3>Deixe o seu feedback da CRM</h3>
+        <form action="/infoCRM" method="POST" id="formTI">
+            <label for="feedback">Feedback:</label>
+            <input type="radio" name="feedback" value="Aprovado">Aprovado
+            <input type="radio" name="feedback" value="Reprovado">Reprovado<br>
+            <div id="divJust">
+                <p>Justificativa:</p>
+                <textarea name="justificativa" id="justificativa" rows="10"></textarea><br>
+            </div>
+            <button type="submit">Enviar feedback</button>
+        </form>
+    </div>
+</body>
+</html>
