@@ -14,6 +14,29 @@ body{
     padding: 0 20px;
 }
 
+#divPesquisa{
+    margin-bottom: 10px;
+    align-self: center;
+}
+
+#divPesquisa input{
+    height: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0 10px;
+    font-size: 16px;
+}
+
+#divPesquisa button{
+    height: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0 10px;
+    font-size: 16px;
+    background-color: #ccc;
+    cursor: pointer;
+}
+
 .colunaCRM{
     text-align: center;
     background-color: rgb(240, 240, 255);
