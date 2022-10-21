@@ -27,6 +27,10 @@ const Colaborador = database.define('colaborador', {
         type: Sequelize.STRING,
         allowNull: false
     }
+},
+{
+    freezeTableName: true,
+    timestamps: false
 });
 
 const Setor = database.define('setor', {
@@ -40,6 +44,10 @@ const Setor = database.define('setor', {
         type: Sequelize.STRING,
         allowNull: false
     }
+},
+{
+    freezeTableName: true,
+    timestamps: false
 });
 
 const Crm = database.define('crm', {
@@ -100,6 +108,10 @@ const Crm = database.define('crm', {
         allowNull: false,
         defaultValue: 'Primeira versão da CRM'
     }
+},
+{
+    freezeTableName: true,
+    timestamps: false
 });
 
 const Documento = database.define('documento', {
@@ -121,6 +133,10 @@ const Documento = database.define('documento', {
         type: Sequelize.STRING,
         allowNull: false
     }
+},
+{
+    freezeTableName: true,
+    timestamps: false
 });
 
 const FeedbackCRM = database.define('feedbackcrm', {
@@ -147,6 +163,10 @@ const FeedbackCRM = database.define('feedbackcrm', {
         type: Sequelize.STRING,
         allowNull: true
     }
+},
+{
+    freezeTableName: true,
+    timestamps: false
 });
 
 const SetoresEnvolvidos = database.define('setoresenvolvidos', {
@@ -169,8 +189,14 @@ const SetoresEnvolvidos = database.define('setoresenvolvidos', {
         type: Sequelize.BOOLEAN,
         allowNull: true
     }
+},
+{
+    freezeTableName: true,
+    timestamps: false
 });
 
+module.exports = { Colaborador, Setor, Crm, Documento, FeedbackCRM, SetoresEnvolvidos };
+/*
 Colaborador.hasOne(Setor, {foreignKey: 'setor'});
 Setor.belongsTo(Colaborador);
 
@@ -178,5 +204,6 @@ Crm.hasOne(Colaborador, {foreignKey: 'idcolaborador_criador'});
 Colaborador.belongsTo(Crm);
 
 Documento.hasOne(Crm, {foreignKey: 'idcrm'});
+*/
 
 // Verificar sobre chaves primárias compostas na passagem de chave estrangeira

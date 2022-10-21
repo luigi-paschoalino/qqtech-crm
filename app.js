@@ -2,6 +2,8 @@ var express = require('express');
 var app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
+const database = require('./db');
+const models = require('./models');
 const port = 3000;
 
 app.use(express.static(__dirname + '/styles'));
@@ -17,9 +19,35 @@ app.get('/', function (req, res) {
 });
 
 app.post('/home', function (req, res) {
-    console.log(req.body.matricula);
-    console.log(req.body.password);
+    console.log(req.body);
     res.sendFile(path.join(__dirname + '/views/tela-inicial.html'));
+});
+
+app.post('/readTeste', async function (req, res) {
+    try{
+        const retorno = await models.Colaborador.findOne({attributes: ['idcolaborador', 'senha'], where: {idcolaborador: req.body.idcolaborador, senha: req.body.senha}})
+        if (retorno === [] || retorno === null) {
+            res.send('Usuário ou senha incorretos');
+        } else {
+            res.send('Login realizado com sucesso!');
+        }
+    }
+    catch(error){
+        res.send('Erro ao realizar login');
+    }
+});
+
+app.post('/insertTeste', async function (req, res) {
+    try{
+        await models.Setor.create({
+            idsetor: null,
+            nomesetor: req.body.nomesetor
+        });
+        res.send('Setor cadastrado com sucesso!');
+    }
+    catch(error){
+        res.send('Erro ao cadastrar setor');
+    }
 });
 
 app.get('/infoCRM', function (req, res) {
