@@ -15,12 +15,30 @@ app.use(bodyParser.json());
 // Routes
 
 app.get('/', function (req, res) {
+    res.redirect('/login');
+});
+
+app.get('/login', function (req, res) {
     res.sendFile(path.join(__dirname + '/views/login.html'));
 });
 
-app.post('/home', function (req, res) {
-    console.log(req.body);
-    res.sendFile(path.join(__dirname + '/views/tela-inicial.html'));
+app.post('/home', async function (req, res) {
+    try{
+        let retorno = await models.Colaborador.findOne({
+            attributes: ['idcolaborador', 'senha'],
+            where: {
+                idcolaborador: req.body.matricula,
+                senha: req.body.senha
+            }
+        });
+        if (retorno === [] || retorno === null) {
+            res.status(401).redirect('/login');
+        } else {
+            res.sendFile(path.join(__dirname + '/views/tela-inicial.html'));
+        }
+    } catch (err) {
+        console.log('Erro ao efetuar login: ' + err.message);
+    }
 });
 
 app.post('/readTeste', async function (req, res) {
