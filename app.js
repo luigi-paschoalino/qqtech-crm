@@ -22,6 +22,10 @@ app.get('/login', function (req, res) {
     res.sendFile(path.join(__dirname + '/views/login.html'));
 });
 
+app.get('/home', function (req, res) {
+    res.sendFile(path.join(__dirname + '/views/tela-inicial.html'));
+});
+
 app.post('/home', async function (req, res) {
     try{
         let retorno = await models.Colaborador.findOne({
@@ -38,20 +42,6 @@ app.post('/home', async function (req, res) {
         }
     } catch (err) {
         console.log('Erro ao efetuar login: ' + err.message);
-    }
-});
-
-app.post('/readTeste', async function (req, res) {
-    try{
-        const retorno = await models.Colaborador.findOne({attributes: ['idcolaborador', 'senha'], where: {idcolaborador: req.body.idcolaborador, senha: req.body.senha}})
-        if (retorno === [] || retorno === null) {
-            res.send('Usuário ou senha incorretos');
-        } else {
-            res.send('Login realizado com sucesso!');
-        }
-    }
-    catch(error){
-        res.send('Erro ao realizar login');
     }
 });
 
@@ -98,6 +88,29 @@ app.get('/createCRM', function (req, res) {
 
 app.get('/addUser', function (req, res) {
     res.sendFile(path.join(__dirname + '/views/cadastrar-usuario.html'));
+});
+
+app.post('/addUser', async function (req, res) {
+    try{
+        if (req.body.senha != req.body.confSenha){
+            throw { 'message': 'As senhas não conferem!'};
+        }
+        else{
+            await models.Colaborador.create({
+                idcolaborador: req.body.matricula,
+                senha: req.body.senha,
+                setor: parseInt(req.body.setor),
+                nome: req.body.nome,
+                sobrenome: req.body.sobrenome,
+                email: req.body.email
+            });
+            res.status(200).redirect('/home');
+        }
+    }
+    catch (err) {
+        console.log('Erro ao cadastrar novo colaborador: ' + err.message);
+        res.redirect('/addUser');
+    }
 });
 
 app.get('/teste', function (req, res) {

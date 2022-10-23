@@ -11,19 +11,19 @@
 </head>
 <body>
     <div id="formDiv">
-        <form action="/cadastrar-usuario" method="POST">
+        <form action="/addUser" method="POST">
             <h2>Cadastro de usuário</h2>
             <input type="text" name="nome" placeholder="Primeiro nome"><br>
             <input type="text" name="sobrenome" placeholder="Sobrenome"><br>
             <input type="email" name="email" placeholder="Endereço de e-mail" pattern=".+@quero-quero.com.br"><br>
             <input type="text" name="matricula" placeholder="Matrícula"><br>
-            <input type="password" name="password" placeholder="Senha"><br>
-            <input type="password" name="confirmPassword" placeholder="Confirme a senha"><br>
+            <input type="password" name="senha" placeholder="Senha"><br>
+            <input type="password" name="confSenha" placeholder="Confirme a senha"><br>
             <select name="setor">
                 <option value="" disabled selected>Selecione um setor</option>
-                <option value="Mercantil">Mercantil</option>
-                <option value="Financeiro">Financeiro</option>
-                <option value="RH">Recursos Humanos</option>
+                <option label="Financeiro" value="1">Financeiro</option>
+                <option label="Mercantil" value="2">Mercantil</option>
+                <option label="Contabilidade" value="3">Recursos Humanos</option>
             </select><br>
             <input type="submit" value="Cadastrar">
     </div>
