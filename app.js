@@ -12,7 +12,7 @@ app.use(express.static(__dirname + '/scripts'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Routes
+// GET Routes
 
 app.get('/', function (req, res) {
     res.redirect('/login');
@@ -24,38 +24,6 @@ app.get('/login', function (req, res) {
 
 app.get('/home', function (req, res) {
     res.sendFile(path.join(__dirname + '/views/tela-inicial.html'));
-});
-
-app.post('/home', async function (req, res) {
-    try{
-        let retorno = await models.Colaborador.findOne({
-            attributes: ['idcolaborador', 'senha'],
-            where: {
-                idcolaborador: req.body.matricula,
-                senha: req.body.senha
-            }
-        });
-        if (retorno === [] || retorno === null) {
-            res.status(401).redirect('/login');
-        } else {
-            res.sendFile(path.join(__dirname + '/views/tela-inicial.html'));
-        }
-    } catch (err) {
-        console.log('Erro ao efetuar login: ' + err.message);
-    }
-});
-
-app.post('/insertTeste', async function (req, res) {
-    try{
-        await models.Setor.create({
-            idsetor: null,
-            nomesetor: req.body.nomesetor
-        });
-        res.send('Setor cadastrado com sucesso!');
-    }
-    catch(error){
-        res.send('Erro ao cadastrar setor');
-    }
 });
 
 app.get('/infoCRM', function (req, res) {
@@ -90,6 +58,42 @@ app.get('/addUser', function (req, res) {
     res.sendFile(path.join(__dirname + '/views/cadastrar-usuario.html'));
 });
 
+
+// POST Routes
+
+app.post('/login', async function (req, res) {
+    try{
+        let retorno = await models.Colaborador.findOne({
+            attributes: ['idcolaborador', 'senha'],
+            where: {
+                idcolaborador: req.body.matricula,
+                senha: req.body.senha
+            }
+        });
+        if (retorno === [] || retorno === null) {
+            throw {message: 'Matrícula ou senha incorretas.'};
+        } else {
+            res.status(200).redirect('/home');
+        }
+    } catch (err) {
+        console.log('Erro ao efetuar login: ' + err.message);
+        res.status(401).sendFile(path.join(__dirname + '/views/loginInvalido.html'));
+    }
+});
+
+app.post('/insertSetor', async function (req, res) {
+    try{
+        await models.Setor.create({
+            idsetor: null,
+            nomesetor: req.body.nomesetor
+        });
+        res.send('Setor cadastrado com sucesso!');
+    }
+    catch(error){
+        res.send('Erro ao cadastrar setor');
+    }
+});
+
 app.post('/addUser', async function (req, res) {
     try{
         if (req.body.senha != req.body.confSenha){
@@ -113,8 +117,50 @@ app.post('/addUser', async function (req, res) {
     }
 });
 
-app.get('/teste', function (req, res) {
-    res.send('<h1>Funfou</h1>');
+app.post('/createCRM', async function (req, res) {
+    try{
+        let retorno = parseInt(JSON.stringify(await models.Crm.max('idcrm')));
+        if (retorno === null){
+            retorno = 0;
+        }
+        await models.Crm.create({
+            idcrm: retorno + 1,
+            versao: 1,
+            idcolaborador_criador: req.body.matricula,
+            descricao: req.body.descricao,
+            objetivo: req.body.objetivo,
+            justificativa: req.body.justificativa,
+            comportamentooffline: req.body.comportamentooffline,
+            dataarquivamento: null,
+            etapaprocesso: 1,
+            flagti: null
+        });
+        let setorRetorno = await models.Colaborador.findOne({
+            attributes: ['idcolaborador', 'setor'],
+            where:{
+                idcolaborador: req.body.matricula
+            }
+        })
+        await models.SetoresEnvolvidos.create({
+            crm_idcrm: retorno + 1,
+            crm_versao: 1,
+            setor_idsetor: setorRetorno.setor
+        });
+        res.send('CRM criado com sucesso!');
+    }
+    catch(error){
+        res.send('Erro ao criar CRM: ' + error.message);
+    }
+});
+
+app.get('/teste', async function (req, res) {
+    try{
+        let retorno = await models.Crm.max('idcrm');
+        res.send(JSON.stringify(retorno));
+    }
+    catch(error){
+        res.send('Erro ao consultar tabela CRM: ' + error.message);
+    }
 });
 
 // Ligando o servidor

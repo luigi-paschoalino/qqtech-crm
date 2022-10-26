@@ -9,7 +9,11 @@ const Colaborador = database.define('colaborador', {
     },
     setor: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        references: {
+            model: 'setor',
+            key: 'idsetor'
+        }
     },
     nome: {
         type: Sequelize.STRING,
@@ -195,15 +199,4 @@ const SetoresEnvolvidos = database.define('setoresenvolvidos', {
     timestamps: false
 });
 
-module.exports = { Colaborador, Setor, Crm, Documento, FeedbackCRM, SetoresEnvolvidos };
-/*
-Colaborador.hasOne(Setor, {foreignKey: 'setor'});
-Setor.belongsTo(Colaborador);
-
-Crm.hasOne(Colaborador, {foreignKey: 'idcolaborador_criador'});
-Colaborador.belongsTo(Crm);
-
-Documento.hasOne(Crm, {foreignKey: 'idcrm'});
-*/
-
-// Verificar sobre chaves primárias compostas na passagem de chave estrangeira
+module.exports = { Colaborador, Setor, Crm, Documento, FeedbackCRM, SetoresEnvolvidos, Sequelize };
