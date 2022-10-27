@@ -58,6 +58,20 @@ app.get('/addUser', function (req, res) {
     res.sendFile(path.join(__dirname + '/views/cadastrar-usuario.html'));
 });
 
+app.get('/dadosCRM', async function (req, res) {
+    console.log(req.params.id, req.params.ver);
+    let retorno = JSON.stringify(await models.Crm.findOne({
+        where: {
+            idcrm: req.query.id,
+            versao: req.query.ver
+        } 
+    }));
+    if (retorno === 'null') {
+        res.send('Nenhum registro encontrado');
+    } else {
+        res.send(retorno);
+    }
+});
 
 // POST Routes
 
