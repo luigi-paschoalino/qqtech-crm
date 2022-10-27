@@ -132,6 +132,7 @@ app.post('/addUser', async function (req, res) {
 });
 
 app.post('/createCRM', async function (req, res) {
+    const c = await database.transaction();
     try{
         let retorno = await models.Crm.max('idcrm');
         if (retorno === null){
@@ -164,9 +165,11 @@ app.post('/createCRM', async function (req, res) {
             crm_versao: 1,
             setor_idsetor: setorRetorno.setor
         });
+        await c.commit();
         res.send('CRM criado com sucesso!');
     }
     catch(error){
+        await c.rollback();
         res.send('Erro ao criar CRM: ' + error.message);
     }
 });
