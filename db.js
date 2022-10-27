@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('postgres', 'postgres', 'PostgreSQL', {dialect: 'postgres', host: 'localhost'});
+const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {dialect: 'postgres', host: 'localhost'});
 
 async function conexao(){
     try{

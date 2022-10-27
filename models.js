@@ -58,8 +58,7 @@ const Crm = database.define('crm', {
     idcrm: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        primaryKey: true,
-        autoIncrement: true
+        primaryKey: true
     },
     versao: {
         type: Sequelize.INTEGER,
@@ -89,18 +88,16 @@ const Crm = database.define('crm', {
     },
     dataarquivamento: {
         type: Sequelize.DATE,
-        allowNull: true,
-        defaultValue: null
+        allowNull: true
     },
     etapaprocesso: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 0
+        defaultValue: 1
     },
     flagti: {
         type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: null,
+        allowNull: true
     },
     flagarquivamento: {
         type: Sequelize.BOOLEAN,
@@ -110,7 +107,11 @@ const Crm = database.define('crm', {
     changelog: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 'Primeira versão da CRM'
+        defaultValue: 'Versão inicial'
+    },
+    comportamentooffline: {
+        type: Sequelize.STRING,
+        allowNull: true
     }
 },
 {

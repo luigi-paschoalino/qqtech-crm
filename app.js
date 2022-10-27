@@ -119,10 +119,14 @@ app.post('/addUser', async function (req, res) {
 
 app.post('/createCRM', async function (req, res) {
     try{
-        let retorno = parseInt(JSON.stringify(await models.Crm.max('idcrm')));
+        let retorno = await models.Crm.max('idcrm');
         if (retorno === null){
             retorno = 0;
         }
+        else{
+            retorno = parseInt(retorno);
+        }
+        console.log(retorno);
         await models.Crm.create({
             idcrm: retorno + 1,
             versao: 1,
@@ -130,10 +134,10 @@ app.post('/createCRM', async function (req, res) {
             descricao: req.body.descricao,
             objetivo: req.body.objetivo,
             justificativa: req.body.justificativa,
-            comportamentooffline: req.body.comportamentooffline,
-            dataarquivamento: null,
-            etapaprocesso: 1,
-            flagti: null
+            comportamentooffline: req.body.comportamentooffline
+        },
+        {
+            fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline']
         });
         let setorRetorno = await models.Colaborador.findOne({
             attributes: ['idcolaborador', 'setor'],
@@ -150,6 +154,51 @@ app.post('/createCRM', async function (req, res) {
     }
     catch(error){
         res.send('Erro ao criar CRM: ' + error.message);
+    }
+});
+
+app.post('/updateCRM', async function (req, res) {
+    try{
+        let retorno = await models.Crm.max('versao', {
+            where: {
+                idcrm: req.body.idcrm
+            }
+        });
+        if (retorno === null){
+            retorno = 0;
+        }
+        else{
+            retorno = parseInt(retorno);
+        }
+        console.log(retorno);
+        await models.Crm.create({
+            idcrm: req.body.idcrm,
+            versao: retorno + 1,
+            idcolaborador_criador: req.body.matricula,
+            descricao: req.body.descricao,
+            objetivo: req.body.objetivo,
+            justificativa: req.body.justificativa,
+            comportamentooffline: req.body.comportamentooffline,
+            changelog: req.body.changelog
+        },
+        {
+            fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline', 'changelog']
+        });
+        let setorRetorno = await models.Colaborador.findOne({
+            attributes: ['idcolaborador', 'setor'],
+            where: {
+                idcolaborador: req.body.matricula
+            }
+        });
+        await models.SetoresEnvolvidos.create({
+            crm_idcrm: req.body.idcrm,
+            crm_versao: retorno + 1,
+            setor_idsetor: setorRetorno.setor
+        });
+        res.send('CRM atualizado com sucesso!');
+    }
+    catch(error){
+        res.send('Erro ao atualizar CRM: ' + error.message);
     }
 });
 
