@@ -59,7 +59,7 @@ app.get('/addUser', function (req, res) {
 });
 
 app.get('/dadosCRM', async function (req, res) {
-    console.log(req.params.id, req.params.ver);
+    console.log(req.query.id, req.query.ver);
     let retorno = JSON.stringify(await models.Crm.findOne({
         where: {
             idcrm: req.query.id,
@@ -219,15 +219,53 @@ app.post('/updateCRM', async function (req, res) {
     }
 });
 
-app.get('/teste', async function (req, res) {
+/*app.post('/avaliarCRM', async function (req, res) {
+    const c = await database.transaction();
     try{
-        let retorno = await models.Crm.max('idcrm');
-        res.send(JSON.stringify(retorno));
+        await models.FeedbackCRM.create({
+            colaborador_idcolaborador: req.body.matricula,
+            crm_idcrm: req.body.idcrm,
+            crm_versao: req.body.versao,
+            tipoavaliacao: req.body.tipoavaliacao,
+            sugestoes: req.body.sugestoes
+        });
+        let setorRetorno = await models.Colaborador.findOne({
+            attributes: ['setor'],
+            where: {
+                idcolaborador: req.body.matricula
+            }
+        }).setor;
+        if (req.body.tipoavaliacao === false){
+            await models.SetoresEnvolvidos.update({
+                flagsetor: false,
+                where: {
+                    crm_idcrm: req.body.idcrm,
+                    crm_versao: req.body.versao,
+                    setor_idsetor: setorRetorno
+                }
+            });
+        } else {
+            if (req.body.tipoavaliacao === true){
+                await models.SetoresEnvolvidos.update({
+                    flagsetor: true,
+                    where: {
+                        crm_idcrm: req.body.idcrm,
+                        crm_versao: req.body.versao,
+                        setor_idsetor: setorRetorno
+                    }
+                });
+            } else {
+                throw { 'message': 'Tipo de avaliação inválido!'};
+            }
+        }
+        await c.commit();
+        res.send('CRM avaliado com sucesso!');
     }
     catch(error){
-        res.send('Erro ao consultar tabela CRM: ' + error.message);
+        await c.rollback();
+        res.send('Erro ao avaliar CRM: ' + error.message);
     }
-});
+});*/
 
 // Ligando o servidor
 
