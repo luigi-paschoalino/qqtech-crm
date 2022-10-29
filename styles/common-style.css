@@ -9,3 +9,15 @@ body{
     justify-content: center;
     align-items: center;
 }
+
+a{
+    text-decoration: none;
+}
+
+a:hover{
+    text-decoration: underline;
+}
+
+a:visited{
+    color: rgb(255, 72, 72);
+}

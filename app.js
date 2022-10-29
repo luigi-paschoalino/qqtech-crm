@@ -18,6 +18,10 @@ app.get('/', function (req, res) {
     res.redirect('/login');
 });
 
+app.get('/authError', function (req, res) {
+    res.sendFile(path.join(__dirname + '/views/facaLogin.html'));
+});
+
 app.get('/login', function (req, res) {
     res.sendFile(path.join(__dirname + '/views/login.html'));
 });
@@ -92,19 +96,6 @@ app.post('/login', async function (req, res) {
     } catch (err) {
         console.log('Erro ao efetuar login: ' + err.message);
         res.status(401).sendFile(path.join(__dirname + '/views/loginInvalido.html'));
-    }
-});
-
-app.post('/insertSetor', async function (req, res) {
-    try{
-        await models.Setor.create({
-            idsetor: null,
-            nomesetor: req.body.nomesetor
-        });
-        res.send('Setor cadastrado com sucesso!');
-    }
-    catch(error){
-        res.send('Erro ao cadastrar setor');
     }
 });
 
