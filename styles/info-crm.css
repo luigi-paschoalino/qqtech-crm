@@ -4,7 +4,7 @@
     flex-direction: column;
     justify-content: center;
     padding: 1rem;
-    max-width: 80vw;
+    width: 80vw;
     font-size: 110%;
 }
 
@@ -70,8 +70,6 @@ a:hover{
     margin-right: auto;
     align-items: center;
     font-weight: bold;
-}
-
-#divJust{
-    /*display: none;*/
+    width: 100%;
+    text-align: justify;
 }

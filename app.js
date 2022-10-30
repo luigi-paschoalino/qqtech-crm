@@ -1,6 +1,5 @@
 var express = require('express');
 var app = express();
-const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const database = require('./db');
@@ -12,16 +11,22 @@ app.use(express.static(__dirname + '/scripts'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.set('view engine', 'ejs');
+
 app.use(session({secret: 'nossoSegredinho', saveUninitialized: false, resave: false, name: 'crmSession'}));
 
 // GETs
+
+app.get('/teste', function(req, res) {
+    res.render('teste');
+});
 
 app.get('/', function (req, res) {
     res.redirect('/login');
 });
 
 app.get('/authError', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/facaLogin.html'));
+    res.render('facaLogin');
 });
 
 // ROUTES
@@ -29,17 +34,16 @@ app.get('/authError', function (req, res) {
 app.route('/login')
     .get(function (req, res) {
         if (req.session.matricula){
-            console.log(req.session.matricula);
             res.redirect('/home');
         }
         else{
-            res.sendFile(path.join(__dirname + '/views/login.html'));
+            res.render('login');
         }
     })
     .post(async function (req, res) {
         try{
             let retorno = await models.Colaborador.findOne({
-                attributes: ['idcolaborador', 'senha'],
+                attributes: ['idcolaborador', 'senha', 'setor'],
                 where: {
                     idcolaborador: req.body.matricula,
                     senha: req.body.senha
@@ -49,11 +53,12 @@ app.route('/login')
                 throw {message: 'Matrícula ou senha incorretas.'};
             } else {
                 req.session.matricula = req.body.matricula;
+                req.session.setor = retorno.setor;
                 res.status(200).redirect('/home');
             }
         } catch (err) {
             console.log('Erro ao efetuar login: ' + err.message);
-            res.status(401).sendFile(path.join(__dirname + '/views/loginInvalido.html'));
+            res.status(401).render('loginInvalido');
         }
     });
 
@@ -62,7 +67,7 @@ app.get('/home', function (req, res) {
         res.redirect('/authError');
     }
     else{    
-        res.sendFile(path.join(__dirname + '/views/tela-inicial.html'));
+        res.render('tela-inicial');
     }
 });
 
@@ -71,7 +76,7 @@ app.get('/infoCRM', function (req, res) {
         res.redirect('/authError');
     }
     else{
-        res.sendFile(path.join(__dirname + '/views/info-default.html'));
+        res.render('info-crm');
     }
 });
 
@@ -80,7 +85,7 @@ app.get('/updateCRM', function (req, res) {
         res.redirect('/authError');
     }
     else{
-        res.sendFile(path.join(__dirname + '/views/atualizar-crm.html'));
+        res.render('atualizar-crm');
     }
 });
 
@@ -89,7 +94,7 @@ app.get('/changelogCRM', function (req, res) {
         res.redirect('/authError');
     }
     else{
-        res.sendFile(path.join(__dirname + '/views/changelog-crm.html'));
+        res.render('changelog-crm');
     }
 });
 
@@ -99,7 +104,7 @@ app.route('/createCRM')
             res.redirect('/authError');
         }
         else{
-            res.sendFile(path.join(__dirname + '/views/criar-crm.html'));
+            res.render('criar-crm');
         }
     })
     .post(async function (req, res) {
@@ -137,11 +142,11 @@ app.route('/createCRM')
                 setor_idsetor: setorRetorno.setor
             });
             await c.commit();
-            res.send('CRM criado com sucesso!');
+            res.render('home'); // Criar pagina de sucesso
         }
         catch(error){
             await c.rollback();
-            res.send('Erro ao criar CRM: ' + error.message);
+            res.render('criar-crm'); // Inserir informações de erro
         }
     });
 
@@ -151,7 +156,7 @@ app.route('/addUser')
             res.redirect('/authError');
         }
         else{          
-        res.sendFile(path.join(__dirname + '/views/cadastrar-usuario.html'));
+        res.render('cadastrar-usuario');
         }
     })
     .post(async function (req, res) {
@@ -178,16 +183,16 @@ app.route('/addUser')
     });
 
 app.get('/dadosCRM', async function (req, res) {
-    let retorno = JSON.stringify(await models.Crm.findOne({
+    let retorno = await models.Crm.findOne({
         where: {
             idcrm: parseInt(req.query.id),
         },
         order: [['versao', 'DESC']]
-    }));
+    });
     if (retorno === 'null') {
         res.send('Nenhum registro encontrado');
     } else {
-        res.send(retorno);
+        res.render('info-crm', {dados: retorno});
     }
 });
 
