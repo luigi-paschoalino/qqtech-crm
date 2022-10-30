@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 const database = require('./db');
 const models = require('./models');
 const port = 3000;
@@ -11,8 +12,9 @@ app.use(express.static(__dirname + '/scripts'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(session({secret: 'nossoSegredinho', saveUninitialized: false, resave: false, name: 'crmSession'}));
 
-// GET Routes
+// GETs
 
 app.get('/', function (req, res) {
     res.redirect('/login');
@@ -22,53 +24,165 @@ app.get('/authError', function (req, res) {
     res.sendFile(path.join(__dirname + '/views/facaLogin.html'));
 });
 
-app.get('/login', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/login.html'));
-});
+// ROUTES
+
+app.route('/login')
+    .get(function (req, res) {
+        if (req.session.matricula){
+            console.log(req.session.matricula);
+            res.redirect('/home');
+        }
+        else{
+            res.sendFile(path.join(__dirname + '/views/login.html'));
+        }
+    })
+    .post(async function (req, res) {
+        try{
+            let retorno = await models.Colaborador.findOne({
+                attributes: ['idcolaborador', 'senha'],
+                where: {
+                    idcolaborador: req.body.matricula,
+                    senha: req.body.senha
+                }
+            });
+            if (retorno === [] || retorno === null) {
+                throw {message: 'Matrícula ou senha incorretas.'};
+            } else {
+                req.session.matricula = req.body.matricula;
+                res.status(200).redirect('/home');
+            }
+        } catch (err) {
+            console.log('Erro ao efetuar login: ' + err.message);
+            res.status(401).sendFile(path.join(__dirname + '/views/loginInvalido.html'));
+        }
+    });
 
 app.get('/home', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/tela-inicial.html'));
+    if (!req.session.matricula){
+        res.redirect('/authError');
+    }
+    else{    
+        res.sendFile(path.join(__dirname + '/views/tela-inicial.html'));
+    }
 });
 
 app.get('/infoCRM', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/info-default.html'));
-});
-
-app.get('/infoTI', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/info-ti.html'));
-});
-
-app.get('/infoSetor', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/info-setor.html'));
-});
-
-app.get('/infoCriador', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/info-creator.html'));
+    if (!req.session.matricula){
+        res.redirect('/authError');
+    }
+    else{
+        res.sendFile(path.join(__dirname + '/views/info-default.html'));
+    }
 });
 
 app.get('/updateCRM', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/atualizar-crm.html'));
+    if (!req.session.matricula){
+        res.redirect('/authError');
+    }
+    else{
+        res.sendFile(path.join(__dirname + '/views/atualizar-crm.html'));
+    }
 });
 
 app.get('/changelogCRM', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/changelog-crm.html'));
+    if (!req.session.matricula){
+        res.redirect('/authError');
+    }
+    else{
+        res.sendFile(path.join(__dirname + '/views/changelog-crm.html'));
+    }
 });
 
-app.get('/createCRM', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/criar-crm.html'));
-});
+app.route('/createCRM')
+    .get(function (req, res) {
+        if (!req.session.matricula){
+            res.redirect('/authError');
+        }
+        else{
+            res.sendFile(path.join(__dirname + '/views/criar-crm.html'));
+        }
+    })
+    .post(async function (req, res) {
+        const c = await database.transaction();
+        try{
+            let retorno = await models.Crm.max('idcrm');
+            if (retorno === null){
+                retorno = 0;
+            }
+            else{
+                retorno = parseInt(retorno);
+            }
+            console.log(retorno);
+            await models.Crm.create({
+                idcrm: retorno + 1,
+                versao: 1,
+                idcolaborador_criador: req.session.matricula,
+                descricao: req.body.descricao,
+                objetivo: req.body.objetivo,
+                justificativa: req.body.justificativa,
+                comportamentooffline: req.body.comportamentooffline
+            },
+            {
+                fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline']
+            });
+            let setorRetorno = await models.Colaborador.findOne({
+                attributes: ['idcolaborador', 'setor'],
+                where:{
+                    idcolaborador: req.session.matricula
+                }
+            })
+            await models.SetoresEnvolvidos.create({
+                crm_idcrm: retorno + 1,
+                crm_versao: 1,
+                setor_idsetor: setorRetorno.setor
+            });
+            await c.commit();
+            res.send('CRM criado com sucesso!');
+        }
+        catch(error){
+            await c.rollback();
+            res.send('Erro ao criar CRM: ' + error.message);
+        }
+    });
 
-app.get('/addUser', function (req, res) {
-    res.sendFile(path.join(__dirname + '/views/cadastrar-usuario.html'));
-});
+app.route('/addUser')
+    .get(function (req, res) {
+        if (!req.session.matricula){
+            res.redirect('/authError');
+        }
+        else{          
+        res.sendFile(path.join(__dirname + '/views/cadastrar-usuario.html'));
+        }
+    })
+    .post(async function (req, res) {
+        try{
+            if (req.body.senha != req.body.confSenha){
+                throw { 'message': 'As senhas não conferem!'};
+            }
+            else{
+                await models.Colaborador.create({
+                    idcolaborador: req.body.matricula,
+                    senha: req.body.senha,
+                    setor: parseInt(req.body.setor),
+                    nome: req.body.nome,
+                    sobrenome: req.body.sobrenome,
+                    email: req.body.email
+                });
+                res.status(200).redirect('/home');
+            }
+        }
+        catch (err) {
+            console.log('Erro ao cadastrar novo colaborador: ' + err.message);
+            res.redirect('/addUser');
+        }
+    });
 
 app.get('/dadosCRM', async function (req, res) {
-    console.log(req.query.id, req.query.ver);
     let retorno = JSON.stringify(await models.Crm.findOne({
         where: {
-            idcrm: req.query.id,
-            versao: req.query.ver
-        } 
+            idcrm: parseInt(req.query.id),
+        },
+        order: [['versao', 'DESC']]
     }));
     if (retorno === 'null') {
         res.send('Nenhum registro encontrado');
@@ -77,93 +191,7 @@ app.get('/dadosCRM', async function (req, res) {
     }
 });
 
-// POST Routes
-
-app.post('/login', async function (req, res) {
-    try{
-        let retorno = await models.Colaborador.findOne({
-            attributes: ['idcolaborador', 'senha'],
-            where: {
-                idcolaborador: req.body.matricula,
-                senha: req.body.senha
-            }
-        });
-        if (retorno === [] || retorno === null) {
-            throw {message: 'Matrícula ou senha incorretas.'};
-        } else {
-            res.status(200).redirect('/home');
-        }
-    } catch (err) {
-        console.log('Erro ao efetuar login: ' + err.message);
-        res.status(401).sendFile(path.join(__dirname + '/views/loginInvalido.html'));
-    }
-});
-
-app.post('/addUser', async function (req, res) {
-    try{
-        if (req.body.senha != req.body.confSenha){
-            throw { 'message': 'As senhas não conferem!'};
-        }
-        else{
-            await models.Colaborador.create({
-                idcolaborador: req.body.matricula,
-                senha: req.body.senha,
-                setor: parseInt(req.body.setor),
-                nome: req.body.nome,
-                sobrenome: req.body.sobrenome,
-                email: req.body.email
-            });
-            res.status(200).redirect('/home');
-        }
-    }
-    catch (err) {
-        console.log('Erro ao cadastrar novo colaborador: ' + err.message);
-        res.redirect('/addUser');
-    }
-});
-
-app.post('/createCRM', async function (req, res) {
-    const c = await database.transaction();
-    try{
-        let retorno = await models.Crm.max('idcrm');
-        if (retorno === null){
-            retorno = 0;
-        }
-        else{
-            retorno = parseInt(retorno);
-        }
-        console.log(retorno);
-        await models.Crm.create({
-            idcrm: retorno + 1,
-            versao: 1,
-            idcolaborador_criador: req.body.matricula,
-            descricao: req.body.descricao,
-            objetivo: req.body.objetivo,
-            justificativa: req.body.justificativa,
-            comportamentooffline: req.body.comportamentooffline
-        },
-        {
-            fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline']
-        });
-        let setorRetorno = await models.Colaborador.findOne({
-            attributes: ['idcolaborador', 'setor'],
-            where:{
-                idcolaborador: req.body.matricula
-            }
-        })
-        await models.SetoresEnvolvidos.create({
-            crm_idcrm: retorno + 1,
-            crm_versao: 1,
-            setor_idsetor: setorRetorno.setor
-        });
-        await c.commit();
-        res.send('CRM criado com sucesso!');
-    }
-    catch(error){
-        await c.rollback();
-        res.send('Erro ao criar CRM: ' + error.message);
-    }
-});
+// POSTs
 
 app.post('/updateCRM', async function (req, res) {
     try{

@@ -10,10 +10,12 @@
     <script src="tela-inicial.js" defer></script>
 </head>
 <body>
-    <h1>Tela inicial</h1>
+    <h1></h1>
     <div id="divPesquisa">
-        <input type="text" id="pesquisa" placeholder="Pesquisar por CRM">
-        <button id="pesquisar">Pesquisar</button>
+        <form action="/dadosCRM" method="get">
+            <input type="text" name="id" placeholder="Pesquisar por CRM">
+            <input type="submit" value="Pesquisar">
+        </form>
     </div>
     <div id="colunasCRM">
         <div id="pendentes" class="colunaCRM">

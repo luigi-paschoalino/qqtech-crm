@@ -19,7 +19,7 @@ body{
     align-self: center;
 }
 
-#divPesquisa input{
+#divPesquisa input[type="text"]{
     height: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -27,7 +27,7 @@ body{
     font-size: 16px;
 }
 
-#divPesquisa button{
+#divPesquisa input[type="submit"]{
     height: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
