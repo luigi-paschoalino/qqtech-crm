@@ -2,6 +2,13 @@ body{
     flex-direction: column;
 }
 
+header{
+    display: flex;
+    width: 80vw;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
 #colunasCRM{
     display: flex;
     flex-direction: row;

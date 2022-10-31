@@ -7,6 +7,8 @@
     <title>Teste</title>
 </head>
 <body>
-    <%= title %>
+    <% for(i = 0; i < dados.length; i++) { %>
+        <p><%= dados[i].descricao %></p>
+    <% } %>
 </body>
 </html>

@@ -17,16 +17,17 @@ app.use(session({secret: 'nossoSegredinho', saveUninitialized: false, resave: fa
 
 // GETs
 
-app.get('/teste', function(req, res) {
-    res.render('teste');
-});
-
 app.get('/', function (req, res) {
     res.redirect('/login');
 });
 
 app.get('/authError', function (req, res) {
     res.render('facaLogin');
+});
+
+app.get('/logout', function (req, res) {
+    req.session.destroy();
+    res.redirect('/login');
 });
 
 // ROUTES
@@ -43,7 +44,7 @@ app.route('/login')
     .post(async function (req, res) {
         try{
             let retorno = await models.Colaborador.findOne({
-                attributes: ['idcolaborador', 'senha', 'setor'],
+                attributes: ['idcolaborador', 'senha', 'setor', 'nome'],
                 where: {
                     idcolaborador: req.body.matricula,
                     senha: req.body.senha
@@ -54,6 +55,7 @@ app.route('/login')
             } else {
                 req.session.matricula = req.body.matricula;
                 req.session.setor = retorno.setor;
+                req.session.nome = retorno.nome;
                 res.status(200).redirect('/home');
             }
         } catch (err) {
@@ -62,12 +64,21 @@ app.route('/login')
         }
     });
 
-app.get('/home', function (req, res) {
+app.get('/home', async function (req, res) {
     if (!req.session.matricula){
         res.redirect('/authError');
     }
-    else{    
-        res.render('tela-inicial');
+    else{
+        try{
+            let retorno = await database.query(
+                `SELECT DISTINCT ON (c.idcrm) c.idcrm, max(c.versao), c.descricao, c.dataabertura, c.etapaprocesso, cc.nome, cc.sobrenome FROM crm c JOIN colaborador cc ON c.idcolaborador_criador = cc.idcolaborador WHERE c.idcolaborador_criador = '${req.session.matricula}' GROUP BY c.idcrm, c.descricao, c.dataabertura, c.etapaprocesso, cc.nome, cc.sobrenome ORDER BY c.idcrm ASC, max(c.versao) DESC;`
+            );
+            console.log(retorno[0]);
+            res.render('tela-inicial', {crm: retorno[0], nome: req.session.nome});
+        }
+        catch (error){
+            res.send(`Deu ruim: ${error.message}`);
+        }
     }
 });
 
@@ -130,19 +141,13 @@ app.route('/createCRM')
             {
                 fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline']
             });
-            let setorRetorno = await models.Colaborador.findOne({
-                attributes: ['idcolaborador', 'setor'],
-                where:{
-                    idcolaborador: req.session.matricula
-                }
-            })
             await models.SetoresEnvolvidos.create({
                 crm_idcrm: retorno + 1,
                 crm_versao: 1,
-                setor_idsetor: setorRetorno.setor
+                setor_idsetor: req.session.setor
             });
             await c.commit();
-            res.render('home'); // Criar pagina de sucesso
+            res.redirect('/home'); // Criar pagina de sucesso
         }
         catch(error){
             await c.rollback();
@@ -215,7 +220,7 @@ app.post('/updateCRM', async function (req, res) {
         await models.Crm.create({
             idcrm: req.body.idcrm,
             versao: retorno + 1,
-            idcolaborador_criador: req.body.matricula,
+            idcolaborador_criador: req.session.matricula,
             descricao: req.body.descricao,
             objetivo: req.body.objetivo,
             justificativa: req.body.justificativa,
@@ -225,21 +230,32 @@ app.post('/updateCRM', async function (req, res) {
         {
             fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline', 'changelog']
         });
-        let setorRetorno = await models.Colaborador.findOne({
-            attributes: ['idcolaborador', 'setor'],
-            where: {
-                idcolaborador: req.body.matricula
-            }
-        });
         await models.SetoresEnvolvidos.create({
             crm_idcrm: req.body.idcrm,
             crm_versao: retorno + 1,
-            setor_idsetor: setorRetorno.setor
+            setor_idsetor: req.session.setor
         });
         res.send('CRM atualizado com sucesso!');
     }
     catch(error){
         res.send('Erro ao atualizar CRM: ' + error.message);
+    }
+});
+
+app.get('/teste', async function (req, res) {
+    let retorno = await models.Crm.findAll({
+        attributes: ['idcrm', 'descricao', [database.fn('max', database.col('versao')), 'versao']],
+        where: {
+            idcolaborador_criador: req.session.matricula
+        },
+        group: ['idcrm', 'descricao'],
+        order: [['idcrm', 'ASC'], ['versao', 'DESC']]
+    });
+    if (retorno === 'null') {
+        res.send('Nenhum registro encontrado');
+    } else {
+        console.log(JSON.stringify(retorno));
+        res.render('teste', {dados: retorno});
     }
 });
 
