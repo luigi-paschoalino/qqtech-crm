@@ -21,16 +21,14 @@
             <textarea id="justificativa" name="justificativa" rows="32" cols="100" placeholder="Insira aqui a justificativa para a realização deste requerimento. Exemplo: com o aumento do número de clientes de fora do Brasil, há a necessidade de aceitação de bandeiras estrangeiras de cartões de crédito nas compras online no site da Quero-Quero, afim de refletir um aumento nas vendas para clientes estrangeiros..."></textarea><br><br>
             <label>Comportamento off-line:</label>
             <textarea id="compOffline" name="compOffline" rows="32" cols="100" placeholder="Insira aqui qual o comportamento deste requerimento quando a loja estiver off-line"></textarea><br><br>
-            <label>Data de conclusão prevista (opcional): </label>
-            <input type="date" id="dataTermino"><br><br>
-            <label>Setores envolvidos:</label>
-            <select id="setor">
-                <option value="" disabled selected>Selecione um setor a ser adicionado</option>
-                <option value="Mercantil">Mercantil</option>
-                <option value="Financeiro">Financeiro</option>
-                <option value="RH">Recursos Humanos</option>
-            </select>
-            <button type="button" id="addSetor" onclick="includeSetor()">Adicionar setor</button><br><br>
+            <label>Setores envolvidos:</label><br>
+            <% setores.forEach(setor => { %>
+                <% if (setor.is_ti === true) { %>
+                    <% return; %>
+                <% } %>
+                    <input type="checkbox" name="setores[]" value="<%= setor.idsetor %>"><%= setor.nomesetor %><br>
+            <% }); %>
+            <br>
             <label>Documentos anexados:</label>
             <input type="file" id="anexo" multiple><br><br>
             <input type="submit" id="cancelar" value="Cancelar">

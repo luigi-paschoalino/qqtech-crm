@@ -47,6 +47,11 @@ const Setor = database.define('setor', {
     nomesetor: {
         type: Sequelize.STRING,
         allowNull: false
+    },
+    is_ti: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     }
 },
 {

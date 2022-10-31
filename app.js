@@ -63,33 +63,23 @@ app.route('/login')
             res.status(401).render('loginInvalido');
         }
     });
-
-app.get('/home', async function (req, res) {
-    if (!req.session.matricula){
-        res.redirect('/authError');
-    }
-    else{
-        try{
-            let retorno = await database.query(
-                `SELECT DISTINCT ON (c.idcrm) c.idcrm, max(c.versao), c.descricao, c.dataabertura, c.etapaprocesso, cc.nome, cc.sobrenome FROM crm c JOIN colaborador cc ON c.idcolaborador_criador = cc.idcolaborador WHERE c.idcolaborador_criador = '${req.session.matricula}' GROUP BY c.idcrm, c.descricao, c.dataabertura, c.etapaprocesso, cc.nome, cc.sobrenome ORDER BY c.idcrm ASC, max(c.versao) DESC;`
-            );
-            console.log(retorno[0]);
-            res.render('tela-inicial', {crm: retorno[0], nome: req.session.nome});
+app.route('/home')
+    .get(async function (req, res) {
+        if (!req.session.matricula){
+            res.redirect('/authError');
         }
-        catch (error){
-            res.send(`Deu ruim: ${error.message}`);
+        else{
+            try{
+                let retorno = await database.query(
+                    `SELECT DISTINCT ON (c.idcrm) c.idcrm, max(c.versao), c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome FROM crm c JOIN colaborador cc ON c.idcolaborador_criador = cc.idcolaborador WHERE c.idcolaborador_criador = '${req.session.matricula}' GROUP BY c.idcrm, c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome ORDER BY c.idcrm ASC, max(c.versao) DESC;`
+                );
+                res.render('tela-inicial', {crm: retorno[0], nome: req.session.nome});
+            }
+            catch (error){
+                res.send(`Deu ruim: ${error.message}`);
+            }
         }
-    }
-});
-
-app.get('/infoCRM', function (req, res) {
-    if (!req.session.matricula){
-        res.redirect('/authError');
-    }
-    else{
-        res.render('info-crm');
-    }
-});
+    });
 
 app.get('/updateCRM', function (req, res) {
     if (!req.session.matricula){
@@ -110,16 +100,19 @@ app.get('/changelogCRM', function (req, res) {
 });
 
 app.route('/createCRM')
-    .get(function (req, res) {
+    .get(async function (req, res) {
         if (!req.session.matricula){
             res.redirect('/authError');
         }
         else{
-            res.render('criar-crm');
+            let data = await database.query('SELECT * FROM setor');
+            console.log(data[0]);
+            res.render('criar-crm', {setores: data[0]});
         }
     })
     .post(async function (req, res) {
         const c = await database.transaction();
+        console.log(req.body);
         try{
             let retorno = await models.Crm.max('idcrm');
             if (retorno === null){
@@ -141,11 +134,16 @@ app.route('/createCRM')
             {
                 fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline']
             });
-            await models.SetoresEnvolvidos.create({
-                crm_idcrm: retorno + 1,
-                crm_versao: 1,
-                setor_idsetor: req.session.setor
-            });
+            await req.body.setores.forEach(setor => {
+                models.SetoresEnvolvidos.create({
+                    crm_idcrm: retorno + 1,
+                    crm_versao: 1,
+                    setor_idsetor: parseInt(setor)
+                },
+                {
+                    fields: ['crm_idcrm', 'crm_versao', 'setor_idsetor']
+                });
+            })
             await c.commit();
             res.redirect('/home'); // Criar pagina de sucesso
         }
@@ -194,8 +192,8 @@ app.get('/dadosCRM', async function (req, res) {
         },
         order: [['versao', 'DESC']]
     });
-    if (retorno === 'null') {
-        res.send('Nenhum registro encontrado');
+    if (retorno === null) {
+        res.redirect('/home');
     } else {
         res.render('info-crm', {dados: retorno});
     }
@@ -239,23 +237,6 @@ app.post('/updateCRM', async function (req, res) {
     }
     catch(error){
         res.send('Erro ao atualizar CRM: ' + error.message);
-    }
-});
-
-app.get('/teste', async function (req, res) {
-    let retorno = await models.Crm.findAll({
-        attributes: ['idcrm', 'descricao', [database.fn('max', database.col('versao')), 'versao']],
-        where: {
-            idcolaborador_criador: req.session.matricula
-        },
-        group: ['idcrm', 'descricao'],
-        order: [['idcrm', 'ASC'], ['versao', 'DESC']]
-    });
-    if (retorno === 'null') {
-        res.send('Nenhum registro encontrado');
-    } else {
-        console.log(JSON.stringify(retorno));
-        res.render('teste', {dados: retorno});
     }
 });
 
