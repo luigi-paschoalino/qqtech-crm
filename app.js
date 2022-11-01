@@ -30,6 +30,15 @@ app.get('/logout', function (req, res) {
     res.redirect('/login');
 });
 
+app.get('/changelogCRM', function (req, res) {
+    if (!req.session.matricula){
+        res.redirect('/authError');
+    }
+    else{
+        res.render('changelog-crm');
+    }
+});
+
 // ROUTES
 
 app.route('/login')
@@ -90,29 +99,29 @@ app.get('/updateCRM', function (req, res) {
     }
 });
 
-app.get('/changelogCRM', function (req, res) {
-    if (!req.session.matricula){
-        res.redirect('/authError');
-    }
-    else{
-        res.render('changelog-crm');
-    }
-});
-
 app.route('/createCRM')
     .get(async function (req, res) {
         if (!req.session.matricula){
             res.redirect('/authError');
         }
         else{
-            let data = await database.query('SELECT * FROM setor');
-            console.log(data[0]);
-            res.render('criar-crm', {setores: data[0]});
+            let setor = await database.query(`SELECT c.setor, s.is_ti FROM colaborador c JOIN setor s ON c.setor = s.idsetor WHERE c.idcolaborador = '${req.session.matricula}';`);
+            if (setor[0][0].is_ti === true){
+                res.status(403).render('erroUsuario', {erro: 'Usuários do setor de TI não podem criar CRMs!'});
+            }
+            else{
+                let data = await database.query('SELECT * FROM setor');
+                console.log(data[0]);
+                res.render('criar-crm', {setores: data[0]});
+            }
         }
     })
     .post(async function (req, res) {
         const c = await database.transaction();
         console.log(req.body);
+        if (req.body.setores.length === 0){
+            throw {message: 'Selecione pelo menos um setor.'};
+        }
         try{
             let retorno = await models.Crm.max('idcrm');
             if (retorno === null){
@@ -154,12 +163,19 @@ app.route('/createCRM')
     });
 
 app.route('/addUser')
-    .get(function (req, res) {
+    .get(async function (req, res) {
         if (!req.session.matricula){
             res.redirect('/authError');
         }
-        else{          
-        res.render('cadastrar-usuario');
+        else{
+            let retorno = await database.query(`SELECT c.setor, s.is_ti FROM colaborador c JOIN setor s ON c.setor = s.idsetor WHERE c.idcolaborador = '${req.session.matricula}'`);
+            if (retorno[0][0].is_ti === true){
+                let data = await database.query('SELECT * FROM setor');
+                res.render('cadastrar-usuario', {setores: data[0]});
+            }
+            else{
+                res.status(403).render('erroUsuario', {erro: 'Você não tem autorização para cadastrar um novo usuário!'});
+            }
         }
     })
     .post(async function (req, res) {
@@ -186,16 +202,22 @@ app.route('/addUser')
     });
 
 app.get('/dadosCRM', async function (req, res) {
-    let retorno = await models.Crm.findOne({
-        where: {
-            idcrm: parseInt(req.query.id),
-        },
-        order: [['versao', 'DESC']]
-    });
-    if (retorno === null) {
-        res.redirect('/home');
-    } else {
-        res.render('info-crm', {dados: retorno});
+    console.log(parseInt(req.query.id));
+    if(isNaN(parseInt(req.query.id))){
+        res.render('erroUsuario', {erro: 'Busca inválida! Insira um ID válido.'});
+    }
+    else{
+        let retorno = await models.Crm.findOne({
+            where: {
+                idcrm: parseInt(req.query.id),
+            },
+            order: [['versao', 'DESC']]
+        });
+        if (retorno === null) {
+            res.render('erroUsuario', {erro: `CRM #${req.query.id} não encontrado!`});
+        } else {
+            res.render('info-crm', {dados: retorno});
+        }
     }
 });
 

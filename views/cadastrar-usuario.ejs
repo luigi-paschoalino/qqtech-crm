@@ -20,10 +20,9 @@
             <input type="password" name="senha" placeholder="Senha"><br>
             <input type="password" name="confSenha" placeholder="Confirme a senha"><br>
             <select name="setor">
-                <option value="" disabled selected>Selecione um setor</option>
-                <option label="Financeiro" value="1">Financeiro</option>
-                <option label="Mercantil" value="2">Mercantil</option>
-                <option label="Contabilidade" value="3">Recursos Humanos</option>
+                <% setores.forEach(setor => { %>
+                    <option value="<%= setor.idsetor %>"><%= setor.nomesetor %></option>
+                <% }); %>
             </select><br>
             <input type="submit" value="Cadastrar">
     </div>
