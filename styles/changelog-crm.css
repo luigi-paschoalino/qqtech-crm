@@ -1,17 +1,32 @@
 #changelog{
-    background-color: whitesmoke;
     width: 70vw;
 }
 
 h1{
     text-align: center;
-    color: black;
+    color: white;
 }
 
 .changelogDesc{
     display: block;
     align-self: center;
     background-color: rgb(80, 80, 80);
+}
+
+.changelogDesc h3, p{
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.changelogDescContent{
+    display: none;
+    background-color: rgb(60, 60, 60);
+}
+
+.changelogDescContent div{
+    border-top: 1px solid white;
+}
+
+.changelogDescContent .changelog{
+    padding-bottom: 5px;
 }

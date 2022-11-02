@@ -30,12 +30,20 @@ app.get('/logout', function (req, res) {
     res.redirect('/login');
 });
 
-app.get('/changelogCRM', function (req, res) {
+app.get('/changelog', async function (req, res) {
     if (!req.session.matricula){
         res.redirect('/authError');
     }
     else{
-        res.render('changelog-crm');
+        let retorno = await database.query(`SELECT * FROM crm WHERE idcrm = ${req.query.id}`);
+        if (retorno[0].length > 0){
+            let data = await database.query(`SELECT * FROM crm WHERE idcrm = ${req.query.id} ORDER BY idcrm DESC, versao DESC`);
+            res.render('changelog-crm', {crm: data[0]});
+        }
+        else{
+            res.render('erroUsuario', {erro: 'CRM não encontrado'});
+        }
+        
     }
 });
 

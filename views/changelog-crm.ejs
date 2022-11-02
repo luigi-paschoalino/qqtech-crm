@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM - Histórico de alterações</title>
+    <title>CRM #<%= crm[0].idcrm %> - Histórico de alterações</title>
     <link rel="stylesheet" href="common-style.css">
     <link rel="stylesheet" href="changelog-crm.css">
     <script src="changelog-crm.js" defer></script>
@@ -14,18 +14,33 @@
     <div id="changelog">
     <h1>Histórico de alterações</h1>
         <!-- https://www.w3schools.com/howto/howto_js_accordion.asp -->
-        <div class="changelogDesc">
-            <h3>Versão 2 - 03/10/2022 02:15:33</h3>
-            <div class="changelogDescContent">
-                <p>Adicionado o campo "Nome" no cadastro de clientes.</p>
+        <% crm.forEach(version => { %>
+            <div class="changelogDesc">
+                <h3>Versão <%= version.versao %> - <%= version.dataabertura %></h3>
+                <div class="changelogDescContent">
+                    <div>
+                        <h3>Descrição:</h3>
+                        <p><%= version.descricao %></p>
+                    </div>
+                    <div>
+                        <h3>Objetivo:</h3>
+                        <p><%= version.objetivo %></p>
+                    </div>
+                    <div>
+                        <h3>Justificativa:</h3>
+                        <p><%= version.justificativa %></p>
+                    </div>
+                    <div>
+                        <h3>Comportamento offline:</h3>
+                        <p><%= version.comportamentooffline %></p>
+                    </div>
+                    <div class="changelog">
+                        <h3>Changelog:</h3>
+                        <p><%= version.changelog %></p>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="changelogDesc">
-            <h3>Versão 1 - 01/10/2022 02:15:33</h3>
-            <div class="changelogDescContent">
-                <p>Versão inicial.</p>
-            </div>
-        </div>
+        <% }) %>
     </div>
 </body>
 </html>
