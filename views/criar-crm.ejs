@@ -14,19 +14,23 @@
         <h2>Cadastro do Requerimento de Mudança</h2>
         <form action="/createCRM" method="post">
             <label>Descrição:</label>
-            <textarea id="descricao" name="descricao" rows="2" cols="100" placeholder="Insira uma frase que resuma a ideia central do requerimento. Exemplo: aceitar bandeiras internacionais de cartão de crédito (American Express)"></textarea><br><br>
+            <textarea id="descricao" name="descricao" rows="2" cols="100" required placeholder="Insira uma frase que resuma a ideia central do requerimento. Exemplo: aceitar bandeiras internacionais de cartão de crédito (American Express)"></textarea><br><br>
             <label>Objetivo:</label>
-            <textarea id="objetivo" name="objetivo" rows="8" cols="100" placeholder="Insira aqui o objetivo do requerimento. Exemplo: o objetivo deste requerimento é a aceitação de operadoras de cartão de crédito estrangeiras na loja virtual"></textarea><br><br>
+            <textarea id="objetivo" name="objetivo" rows="8" cols="100" required placeholder="Insira aqui o objetivo do requerimento. Exemplo: o objetivo deste requerimento é a aceitação de operadoras de cartão de crédito estrangeiras na loja virtual"></textarea><br><br>
             <label>Justificativa:</label>
-            <textarea id="justificativa" name="justificativa" rows="32" cols="100" placeholder="Insira aqui a justificativa para a realização deste requerimento. Exemplo: com o aumento do número de clientes de fora do Brasil, há a necessidade de aceitação de bandeiras estrangeiras de cartões de crédito nas compras online no site da Quero-Quero, afim de refletir um aumento nas vendas para clientes estrangeiros..."></textarea><br><br>
+            <textarea id="justificativa" name="justificativa" rows="32" cols="100" required placeholder="Insira aqui a justificativa para a realização deste requerimento. Exemplo: com o aumento do número de clientes de fora do Brasil, há a necessidade de aceitação de bandeiras estrangeiras de cartões de crédito nas compras online no site da Quero-Quero, afim de refletir um aumento nas vendas para clientes estrangeiros..."></textarea><br><br>
             <label>Comportamento off-line:</label>
-            <textarea id="compOffline" name="compOffline" rows="32" cols="100" placeholder="Insira aqui qual o comportamento deste requerimento quando a loja estiver off-line"></textarea><br><br>
+            <textarea id="comportamentooffline" name="comportamentooffline" rows="32" cols="100" placeholder="Insira aqui qual o comportamento deste requerimento quando a loja estiver off-line"></textarea><br><br>
             <label>Setores envolvidos:</label><br>
             <% setores.forEach(setor => { %>
                 <% if (setor.is_ti === true) { %>
                     <% return; %>
                 <% } %>
+                <% if (setor.idsetor === setorUsuario) { %>
+                    <input type="checkbox" name="setores[]" value="<%= setor.idsetor %>" checked required><%= setor.nomesetor %><br>
+                <% } else { %>
                     <input type="checkbox" name="setores[]" value="<%= setor.idsetor %>"><%= setor.nomesetor %><br>
+                <% } %>
             <% }); %>
             <br>
             <label>Documentos anexados:</label>

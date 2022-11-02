@@ -13,7 +13,7 @@
     <div id="infoCRM">
         <div id="infoCRM-header">
             <h1>Informações do requerimento</h1>
-            <button id="changelog">Histórico de versões</button>
+            <a href="/changelog?id=<%= id %>">Histórico de versões</a>
         </div>
         <h3>Descrição:</h3>
         <div id="descricao" class="texto">
@@ -27,6 +27,12 @@
         <div id="justificativa" class="texto">
             <p><%= dados.justificativa %></p>
         </div>
+        <% if (dados.comportamentoffline !== null) { %>
+            <h3>Comportamento offline:</h3>
+            <div id="comportamentooffline" class="texto">
+                <p><%= dados.comportamentooffline %></p>
+            </div>
+        <% } %>
         <h3>Documentos:</h3>
         <div id="documentos">
             <ul>

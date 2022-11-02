@@ -90,14 +90,76 @@ app.route('/home')
         }
     });
 
-app.get('/updateCRM', function (req, res) {
-    if (!req.session.matricula){
-        res.redirect('/authError');
-    }
-    else{
-        res.render('atualizar-crm');
-    }
-});
+app.route('/updateCRM')
+    .get(async function (req, res) {
+        if (!req.session.matricula){
+            res.redirect('/authError');
+        }
+        else{
+            let retorno = await database.query(`SELECT * FROM crm where idcrm = ${req.query.id} ORDER BY versao DESC LIMIT 1;`);
+            if(retorno[0][0].idcolaborador_criador === req.session.matricula){
+                let data = await database.query('SELECT * FROM setor');
+                console.log(data[0]);
+                res.render('atualizar-crm', {idcrm: req.query.id, setores: data[0], setorUsuario: req.session.setor, idcrm: req.query.id, descricao: retorno[0][0].descricao});
+            }
+            else{
+                res.render('erroUsuario', {erro: 'Você não é o autor deste CRM.'});
+            }
+        }
+    })
+    .post(async function (req, res) {
+        console.log(req.body);
+        if(isNaN(parseInt(req.body.idcrm))){
+            res.render('erroUsuario', {erro: 'Não é possível atualizar uma CRM com ID inválido!'});
+        }
+        else{
+            const c = await database.transaction();
+            try{
+                let retorno = await models.Crm.max('versao', {
+                    where: {
+                        idcrm: parseInt(req.body.idcrm)
+                    }
+                });
+                if (retorno === null){
+                    retorno = 0;
+                }
+                else{
+                    retorno = parseInt(retorno);
+                }
+                console.log(retorno);
+                await models.Crm.create({
+                    idcrm: parseInt(req.body.idcrm),
+                    versao: retorno + 1,
+                    idcolaborador_criador: req.session.matricula,
+                    descricao: req.body.descricao,
+                    objetivo: req.body.objetivo,
+                    justificativa: req.body.justificativa,
+                    comportamentooffline: req.body.comportamentooffline,
+                    changelog: req.body.changelog
+                },
+                {
+                    fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline', 'changelog']
+                });
+                await req.body.setores.forEach(setor => {
+                    models.SetoresEnvolvidos.create({
+                        crm_idcrm: parseInt(req.body.idcrm),
+                        crm_versao: retorno + 1,
+                        setor_idsetor: parseInt(setor)
+                    },
+                    {
+                        fields: ['crm_idcrm', 'crm_versao', 'setor_idsetor']
+                    });
+                });
+                await c.commit();
+                res.redirect('/home');
+            }
+            catch(error){
+                await c.rollback();
+                res.send('Erro ao atualizar CRM: ' + error.message);
+            }
+        }
+    });
+
 
 app.route('/createCRM')
     .get(async function (req, res) {
@@ -112,7 +174,7 @@ app.route('/createCRM')
             else{
                 let data = await database.query('SELECT * FROM setor');
                 console.log(data[0]);
-                res.render('criar-crm', {setores: data[0]});
+                res.render('criar-crm', {setores: data[0], setorUsuario: req.session.setor});
             }
         }
     })
@@ -152,7 +214,7 @@ app.route('/createCRM')
                 {
                     fields: ['crm_idcrm', 'crm_versao', 'setor_idsetor']
                 });
-            })
+            });
             await c.commit();
             res.redirect('/home'); // Criar pagina de sucesso
         }
@@ -202,65 +264,36 @@ app.route('/addUser')
     });
 
 app.get('/dadosCRM', async function (req, res) {
-    console.log(parseInt(req.query.id));
-    if(isNaN(parseInt(req.query.id))){
-        res.render('erroUsuario', {erro: 'Busca inválida! Insira um ID válido.'});
+    if (!req.session.matricula){
+        res.redirect('/authError');
     }
     else{
-        let retorno = await models.Crm.findOne({
-            where: {
-                idcrm: parseInt(req.query.id),
-            },
-            order: [['versao', 'DESC']]
-        });
-        if (retorno === null) {
-            res.render('erroUsuario', {erro: `CRM #${req.query.id} não encontrado!`});
-        } else {
-            res.render('info-crm', {dados: retorno});
+        try{
+            console.log(parseInt(req.query.id));
+            if(isNaN(parseInt(req.query.id))){
+                throw {message: 'Insira um ID válido.'};
+            }
+            else{
+                let retorno = await models.Crm.findOne({
+                    where: {
+                        idcrm: parseInt(req.query.id),
+                    },
+                    order: [['versao', 'DESC']]
+                });
+                if (retorno === null) {
+                    throw {message: 'CRM não existe!'};
+                } else {
+                    res.render('info-crm', {dados: retorno, id: req.query.id});
+                }
+            }
+        }
+        catch(error){
+            res.render('erroUsuario', {erro: `Erro ao buscar CRM #${req.query.id}: ${error.message}`});
         }
     }
 });
 
 // POSTs
-
-app.post('/updateCRM', async function (req, res) {
-    try{
-        let retorno = await models.Crm.max('versao', {
-            where: {
-                idcrm: req.body.idcrm
-            }
-        });
-        if (retorno === null){
-            retorno = 0;
-        }
-        else{
-            retorno = parseInt(retorno);
-        }
-        console.log(retorno);
-        await models.Crm.create({
-            idcrm: req.body.idcrm,
-            versao: retorno + 1,
-            idcolaborador_criador: req.session.matricula,
-            descricao: req.body.descricao,
-            objetivo: req.body.objetivo,
-            justificativa: req.body.justificativa,
-            comportamentooffline: req.body.comportamentooffline,
-            changelog: req.body.changelog
-        },
-        {
-            fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline', 'changelog']
-        });
-        await models.SetoresEnvolvidos.create({
-            crm_idcrm: req.body.idcrm,
-            crm_versao: retorno + 1,
-            setor_idsetor: req.session.setor
-        });
-        res.send('CRM atualizado com sucesso!');
-    }
-    catch(error){
-        res.send('Erro ao atualizar CRM: ' + error.message);
-    }
-});
 
 /*app.post('/avaliarCRM', async function (req, res) {
     const c = await database.transaction();
@@ -309,6 +342,10 @@ app.post('/updateCRM', async function (req, res) {
         res.send('Erro ao avaliar CRM: ' + error.message);
     }
 });*/
+
+app.post('/teste', async function (req, res) {
+    res.json(req.body);
+});
 
 // Ligando o servidor
 

@@ -9,6 +9,10 @@ textarea{
     width: 100%;
 }
 
+textarea:read-only{
+    background-color: #bbbbbb;
+}
+
 #cadastro{text-align: center;}
 
 #enviar{
