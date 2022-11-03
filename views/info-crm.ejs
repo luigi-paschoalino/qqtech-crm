@@ -8,12 +8,18 @@
     <link rel="stylesheet" href="common-style.css">
     <link rel="stylesheet" href="info-crm.css">
     <script src="info-crm.js" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
     <div id="infoCRM">
         <div id="infoCRM-header">
             <h1>Informações do requerimento</h1>
-            <a href="/changelog?id=<%= id %>">Histórico de versões</a>
+            <div id="crmOptions">
+                <a href="/changelog?id=<%= id %>">Histórico de versões</a>
+                <% if (usuario === 0) { %>
+                    <a href="/updateCRM?id=<%= id %>">Criar nova versão</a>
+                <% } %>
+            </div>
         </div>
         <h3>Descrição:</h3>
         <div id="descricao" class="texto">
@@ -78,6 +84,21 @@
                 </tr>
             </table>
         </div>
+        <% if (usuario === 1 || usuario === 2) { %>
+            <h3>Deixe o seu feedback da CRM</h3>
+            <form action="/avaliarCRM" method="POST" id="formAvaliacao">
+                <input type="number" name="idcrm" value="<%= dados.idcrm %>" hidden>
+                <input type="number" name="versao" value="<%= dados.versao %>" hidden>
+                <label for="feedback">Feedback:</label>
+                <input type="radio" name="feedback" value="aprovado">Aprovado
+                <input type="radio" name="feedback" value="reprovado">Reprovado<br>
+                <div id="divJust">
+                    <p>Justificativa:</p>
+                    <textarea name="feedbackJust" id="feedbackJust" rows="10" required disabled></textarea><br>
+                </div>
+                <button type="submit">Enviar feedback</button>
+            </form>
+        <% } %>
     </div>
 </body>
 </html>

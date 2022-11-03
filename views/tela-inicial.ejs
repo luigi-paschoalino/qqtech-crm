@@ -34,7 +34,7 @@
                         </span>
                         <p>Responsável: <%= item.nome %> <%= item.sobrenome %></p>
                         <% if (item.etapaprocesso === 0) { %>
-                            <p style="color: red">Versão recusada pela T.I.</p>
+                            <p style="color: red">Versão recusada</p>
                         <% } %>
                         <a href="/dadosCRM?id=<%= item.idcrm %>"><p class="crmDetails">Mais detalhes</p></a>
                     </div>

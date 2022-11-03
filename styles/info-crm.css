@@ -8,16 +8,16 @@
     font-size: 110%;
 }
 
-#botoesCriador{
-    display: flex;
-    flex-direction: column;
-}
-
 #infoCRM #infoCRM-header{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+}
+
+#crmOptions{
+    display: flex;
+    flex-direction: column;
 }
 
 button, input[type="submit"]{

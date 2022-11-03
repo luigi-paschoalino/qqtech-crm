@@ -80,6 +80,7 @@ app.route('/login')
             res.status(401).render('loginInvalido');
         }
     });
+
 app.route('/home')
     .get(async function (req, res) {
         if (!req.session.matricula){
@@ -147,7 +148,7 @@ app.route('/updateCRM')
                 },
                 {
                     fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline', 'changelog']
-                });
+                }, {transaction: c});
                 await req.body.setores.forEach(setor => {
                     models.SetoresEnvolvidos.create({
                         crm_idcrm: parseInt(req.body.idcrm),
@@ -156,7 +157,7 @@ app.route('/updateCRM')
                     },
                     {
                         fields: ['crm_idcrm', 'crm_versao', 'setor_idsetor']
-                    });
+                    }, {transaction: c});
                 });
                 await c.commit();
                 res.redirect('/home');
@@ -212,7 +213,7 @@ app.route('/createCRM')
             },
             {
                 fields: ['idcrm', 'versao', 'idcolaborador_criador', 'descricao', 'objetivo', 'justificativa', 'comportamentooffline']
-            });
+            }, {transaction: c});
             await req.body.setores.forEach(setor => {
                 models.SetoresEnvolvidos.create({
                     crm_idcrm: retorno + 1,
@@ -221,7 +222,7 @@ app.route('/createCRM')
                 },
                 {
                     fields: ['crm_idcrm', 'crm_versao', 'setor_idsetor']
-                });
+                }, {transaction: c});
             });
             await c.commit();
             res.redirect('/home'); // Criar pagina de sucesso
@@ -291,7 +292,26 @@ app.get('/dadosCRM', async function (req, res) {
                 if (retorno === null) {
                     throw {message: 'CRM não existe!'};
                 } else {
-                    res.render('info-crm', {dados: retorno, id: req.query.id});
+                    let tipoUsuario = 3;
+                    if (retorno.idcolaborador_criador === req.session.matricula){
+                        tipoUsuario = 0; // 0 = criador, 1 = setor envolvido, 2 = TI, 3 = qualquer outro
+                    }
+                    else{
+                        let setor = await database.query(`SELECT se.setor_idsetor FROM setoresenvolvidos se JOIN colaborador c ON se.setor_idsetor = c.setor WHERE se.crm_idcrm = ${retorno.idcrm} AND se.crm_versao = ${retorno.versao} AND c.idcolaborador = '${req.session.matricula}';`);
+                        if (setor[0].length > 0){
+                            tipoUsuario = 1;
+                        }
+                        else{
+                            let setor = await database.query(`SELECT idsetor FROM setor WHERE is_ti = true AND idsetor = ${req.session.setor}`);
+                            if (setor[0].length > 0){
+                                tipoUsuario = 2;
+                            }
+                            else{
+                                tipoUsuario = 3;
+                            }
+                        }
+                    }
+                    res.render('info-crm', {dados: retorno, id: req.query.id, usuario: tipoUsuario});
                 }
             }
         }
@@ -303,53 +323,114 @@ app.get('/dadosCRM', async function (req, res) {
 
 // POSTs
 
-/*app.post('/avaliarCRM', async function (req, res) {
+app.post('/avaliarCRM', async function (req, res) {
     const c = await database.transaction();
+    if(req.body.feedback === 'aprovado'){
+        var feedback = true
+    }
+    else{
+        var feedback = false
+    }
     try{
         await models.FeedbackCRM.create({
-            colaborador_idcolaborador: req.body.matricula,
+            colaborador_idcolaborador: req.session.matricula,
             crm_idcrm: req.body.idcrm,
             crm_versao: req.body.versao,
-            tipoavaliacao: req.body.tipoavaliacao,
-            sugestoes: req.body.sugestoes
-        });
-        let setorRetorno = await models.Colaborador.findOne({
-            attributes: ['setor'],
+            tipoavaliacao: feedback,
+            sugestoes: req.body.feedbackJust || null
+        }, {transaction: c});
+        let is_ti = await models.Setor.findOne({
+            attributes: ['is_ti'],
             where: {
-                idcolaborador: req.body.matricula
+                idsetor: req.session.setor
             }
-        }).setor;
-        if (req.body.tipoavaliacao === false){
+        });
+        console.log(is_ti.is_ti, feedback);
+        if (feedback === false){
+            if (is_ti.is_ti === true){
+                await models.Crm.update({
+                    flagti: false,
+                    etapaprocesso: 0
+                },
+                {
+                    where: {
+                        idcrm: req.body.idcrm,
+                        versao: req.body.versao
+                    },
+                    transaction: c
+                });
+            } else {
+                await models.Crm.update({
+                    etapaprocesso: 0
+                },
+                {
+                    where: {
+                        idcrm: req.body.idcrm,
+                        versao: req.body.versao
+                    },
+                    transaction: c
+                });
+            }
             await models.SetoresEnvolvidos.update({
-                flagsetor: false,
+                flagsetor: false
+            },
+            {
                 where: {
                     crm_idcrm: req.body.idcrm,
                     crm_versao: req.body.versao,
-                    setor_idsetor: setorRetorno
-                }
+                    setor_idsetor: req.session.setor
+                },
+                transaction: c
             });
         } else {
-            if (req.body.tipoavaliacao === true){
-                await models.SetoresEnvolvidos.update({
-                    flagsetor: true,
-                    where: {
-                        crm_idcrm: req.body.idcrm,
-                        crm_versao: req.body.versao,
-                        setor_idsetor: setorRetorno
-                    }
-                });
+            if (feedback === true){
+                if (is_ti.is_ti === true){
+                    await models.Crm.update({
+                        flagti: true,
+                    },
+                    {
+                        where: {
+                            idcrm: req.body.idcrm,
+                            versao: req.body.versao
+                        },
+                        transaction: c
+                    });
+                }
+            await models.SetoresEnvolvidos.update({
+                flagsetor: true
+            },
+            {
+                where: {
+                    crm_idcrm: req.body.idcrm,
+                    crm_versao: req.body.versao,
+                    setor_idsetor: req.session.setor
+                },
+                transaction: c
+            });
             } else {
-                throw { 'message': 'Tipo de avaliação inválido!'};
+                throw {message: 'Erro na avaliação do CRM.'};
             }
         }
         await c.commit();
-        res.send('CRM avaliado com sucesso!');
-    }
-    catch(error){
+        let status = await database.query(`SELECT count(*), c.flagti FROM setoresenvolvidos s JOIN crm c ON s.crm_idcrm = c.idcrm AND s.crm_versao = c.versao WHERE s.crm_idcrm = ${req.body.idcrm} AND s.crm_versao = ${req.body.versao} AND s.flagsetor IS NOT true GROUP BY c.flagti`);
+        console.log(status[0]);
+        if(status[0].length === 0){
+            await models.Crm.update({
+                etapaprocesso: 2
+            },
+            {
+                where: {
+                    idcrm: req.body.idcrm,
+                    versao: req.body.versao
+                }
+            });
+        }
+        res.redirect('/home');
+    } catch(error){
         await c.rollback();
         res.send('Erro ao avaliar CRM: ' + error.message);
     }
-});*/
+});
 
 app.post('/teste', async function (req, res) {
     res.json(req.body);
