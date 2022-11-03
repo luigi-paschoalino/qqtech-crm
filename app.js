@@ -94,7 +94,7 @@ app.route('/home')
                 res.render('tela-inicial', {crm: retorno[0], nome: req.session.nome});
             }
             catch (error){
-                res.send(`Deu ruim: ${error.message}`);
+                res.render('erroUsuario', {erro: 'Erro ao carregar CRMs'});
             }
         }
     });
@@ -164,7 +164,7 @@ app.route('/updateCRM')
             }
             catch(error){
                 await c.rollback();
-                res.send('Erro ao atualizar CRM: ' + error.message);
+                res.render('erroUsuario', {erro: 'Erro ao atualizar CRM'});
             }
         }
     });
@@ -431,7 +431,7 @@ app.post('/avaliarCRM', async function (req, res) {
         res.redirect('/home');
     } catch(error){
         await c.rollback();
-        res.send('Erro ao avaliar CRM: ' + error.message);
+        res.render('erroUsuario', {erro: `Erro ao avaliar CRM #${req.body.idcrm}: ${error.message}`});
     }
 });
 
@@ -462,7 +462,7 @@ app.post('/arquivarCRM', async function (req, res) {
         });
         res.redirect('/home');
     } catch(error){
-        res.send('Erro ao arquivar CRM: ' + error.message);
+        res.render('erroUsuario', {erro: `Erro ao arquivar CRM #${req.body.idcrm}: ${error.message}`});
     }
 });
 
