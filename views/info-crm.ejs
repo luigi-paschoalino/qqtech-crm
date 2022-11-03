@@ -13,7 +13,10 @@
 <body>
     <div id="infoCRM">
         <div id="infoCRM-header">
-            <h1>Informações do requerimento</h1>
+            <div id=title>
+                <a href="/home">Voltar</a>
+                <h1>Informações do requerimento</h1>
+            </div>
             <div id="crmOptions">
                 <a href="/changelog?id=<%= id %>">Histórico de versões</a>
                 <% if (usuario === 0) { %>
@@ -55,33 +58,21 @@
                 <tr>
                     <th>Setor</th>
                     <th>Feedback do setor</th>
-                    <th>Justificativa</th>
                 </tr>
-                <tr>
-                    <td>Setor 1</td>
-                    <td>Feedback setor 1</td>
-                    <td>Justificativa</td>
-                </tr>
-                <tr>
-                    <td>Setor 2</td>
-                    <td>Feedback setor 2</td>
-                    <td>Justificativa</td>
-                </tr>
-                <tr>
-                    <td>Setor 3</td>
-                    <td>Feedback setor 3</td>
-                    <td>Justificativa</td>
-                </tr>
-                <tr>
-                    <td>Setor 4</td>
-                    <td>Feedback setor 4</td>
-                    <td>Justificativa</td>
-                </tr>
-                <tr>
-                    <td>Setor 5</td>
-                    <td>Feedback setor 5</td>
-                    <td>Justificativa</td>
-                </tr>
+                <% setores.forEach(setor => { %>
+                    <tr>
+                        <th><%= setor.nomesetor %></th>
+                        <% if (setor.flagsetor === false) { %>
+                            <th>NEGADO</th>
+                        <% } else { %>
+                            <% if (setor.flagsetor === true) { %>
+                                <th>APROVADO</th>
+                            <% } else { %>
+                                <th>PENDENTE</th>
+                            <% } %>
+                        <% } %>
+                    </tr>
+                <% }) %>
             </table>
         </div>
         <% if (usuario === 1 || usuario === 2) { %>
@@ -99,6 +90,13 @@
                 <button type="submit">Enviar feedback</button>
             </form>
         <% } %>
+        <% if (usuario === 0) { %>
+            <form id="arquivar" action="/arquivarCRM" method="post">
+                <input type="number" name="idcrm" value="<%= id %>" hidden>
+                <input type="submit" value="Arquivar CRM">
+            </form>
+        <% } %>
     </div>
+    
 </body>
 </html>

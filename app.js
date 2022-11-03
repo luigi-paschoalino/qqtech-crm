@@ -289,6 +289,7 @@ app.get('/dadosCRM', async function (req, res) {
                     },
                     order: [['versao', 'DESC']]
                 });
+                let setores = await database.query(`SELECT se.*, s.nomesetor FROM setoresenvolvidos se JOIN setor s ON se.setor_idsetor = s.idsetor WHERE crm_idcrm = ${parseInt(req.query.id)} AND crm_versao = ${retorno.versao}`);
                 if (retorno === null) {
                     throw {message: 'CRM não existe!'};
                 } else {
@@ -311,7 +312,8 @@ app.get('/dadosCRM', async function (req, res) {
                             }
                         }
                     }
-                    res.render('info-crm', {dados: retorno, id: req.query.id, usuario: tipoUsuario});
+                    console.log(setores[0]);
+                    res.render('info-crm', {dados: retorno, id: req.query.id, usuario: tipoUsuario, setores: setores[0]});
                 }
             }
         }
@@ -320,6 +322,7 @@ app.get('/dadosCRM', async function (req, res) {
         }
     }
 });
+
 
 // POSTs
 
@@ -434,6 +437,33 @@ app.post('/avaliarCRM', async function (req, res) {
 
 app.post('/teste', async function (req, res) {
     res.json(req.body);
+});
+
+app.post('/arquivarCRM', async function (req, res) {
+    let versao = await models.Crm.findOne({
+        attributes: ['versao'],
+        where: {
+            idcrm: req.body.idcrm
+        },
+        order: [
+            ['versao', 'DESC']
+        ]
+    });
+    console.log(versao.dataValues.versao);
+    try{
+        await models.Crm.update({
+            flagarquivamento: true
+        },
+        {
+            where: {
+                idcrm: req.body.idcrm,
+                versao: versao.dataValues.versao
+            }
+        });
+        res.redirect('/home');
+    } catch(error){
+        res.send('Erro ao arquivar CRM: ' + error.message);
+    }
 });
 
 // Ligando o servidor
