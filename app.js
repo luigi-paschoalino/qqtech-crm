@@ -340,7 +340,6 @@ app.get('/dadosCRM', async function (req, res) {
     }
 });
 
-
 // POSTs
 
 app.post('/avaliarCRM', async function (req, res) {
@@ -392,7 +391,7 @@ app.post('/avaliarCRM', async function (req, res) {
             }
             await models.SetoresEnvolvidos.update({
                 flagsetor: false,
-                sugestoes: req.body.feedbackJust
+                sugestoes: req.body.feedbackJust || null
             },
             {
                 where: {
