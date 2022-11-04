@@ -168,10 +168,6 @@ const FeedbackCRM = database.define('feedbackcrm', {
     tipoavaliacao: {
         type: Sequelize.BOOLEAN,
         allowNull: false
-    },
-    sugestoes: {
-        type: Sequelize.STRING,
-        allowNull: true
     }
 },
 {
@@ -197,6 +193,10 @@ const SetoresEnvolvidos = database.define('setoresenvolvidos', {
     },
     flagsetor: {
         type: Sequelize.BOOLEAN,
+        allowNull: true
+    },
+    sugestoes: {
+        type: Sequelize.STRING,
         allowNull: true
     }
 },

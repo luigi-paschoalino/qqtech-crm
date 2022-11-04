@@ -16,10 +16,17 @@
             <div id=title>
                 <a href="/home">Voltar</a>
                 <h1>Informações do requerimento</h1>
+                <% if (dados.flagarquivamento === true) { %>
+                    <% if (dados.etapaprocesso === 3) { %>
+                        <h3 style="color: green;">CONCLUÍDO E ARQUIVADO</h3>
+                    <% } else { %>
+                        <h3 style="color: red;">INTERROMPIDO E ARQUIVADO</h3>
+                    <% } %>
+                <% } %>
             </div>
             <div id="crmOptions">
                 <a href="/changelog?id=<%= id %>">Histórico de versões</a>
-                <% if (usuario === 0) { %>
+                <% if (usuario === 0 && dados.flagarquivamento === false && dados.etapaprocesso === 0) { %>
                     <a href="/updateCRM?id=<%= id %>">Criar nova versão</a>
                 <% } %>
             </div>
@@ -58,6 +65,7 @@
                 <tr>
                     <th>Setor</th>
                     <th>Feedback do setor</th>
+                    <th>Justificativa</th>
                 </tr>
                 <% setores.forEach(setor => { %>
                     <tr>
@@ -71,11 +79,12 @@
                                 <th>PENDENTE</th>
                             <% } %>
                         <% } %>
+                        <th><%= setor.sugestoes %></th>
                     </tr>
                 <% }) %>
             </table>
         </div>
-        <% if (usuario === 1 || usuario === 2) { %>
+        <% if ((usuario === 1 || usuario === 2) && avaliacao === false && dados.flagarquivamento === false) { %>
             <h3>Deixe o seu feedback da CRM</h3>
             <form action="/avaliarCRM" method="POST" id="formAvaliacao">
                 <input type="number" name="idcrm" value="<%= dados.idcrm %>" hidden>
@@ -90,13 +99,15 @@
                 <button type="submit">Enviar feedback</button>
             </form>
         <% } %>
-        <% if (usuario === 0) { %>
+        <% if (usuario === 0 && dados.flagarquivamento === false) { %>
             <form id="arquivar" action="/arquivarCRM" method="post">
                 <input type="number" name="idcrm" value="<%= id %>" hidden>
                 <input type="submit" value="Arquivar CRM">
             </form>
         <% } %>
+        <% if (dados.flagarquivamento === true) { %>
+            <h3>Requerimento arquivado em: <%= dados.dataarquivamento %></h3>
+        <% } %>
     </div>
-    
 </body>
 </html>

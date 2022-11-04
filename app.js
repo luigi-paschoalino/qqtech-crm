@@ -274,6 +274,7 @@ app.route('/addUser')
     });
 
 app.get('/dadosCRM', async function (req, res) {
+    var crmAvaliada = null;
     if (!req.session.matricula){
         res.redirect('/authError');
     }
@@ -290,7 +291,7 @@ app.get('/dadosCRM', async function (req, res) {
                     },
                     order: [['versao', 'DESC']]
                 });
-                let setores = await database.query(`SELECT se.*, s.nomesetor FROM setoresenvolvidos se JOIN setor s ON se.setor_idsetor = s.idsetor WHERE crm_idcrm = ${parseInt(req.query.id)} AND crm_versao = ${retorno.versao}`);
+                let setores = await database.query(`SELECT s.nomesetor, se.flagsetor, se.sugestoes FROM setor s JOIN setoresenvolvidos se ON se.setor_idsetor = s.idsetor WHERE se.crm_idcrm = ${parseInt(req.query.id)} AND se.crm_versao = ${parseInt(retorno.versao)}`);
                 if (retorno === null) {
                     throw {message: 'CRM não existe!'};
                 } else {
@@ -299,27 +300,42 @@ app.get('/dadosCRM', async function (req, res) {
                         tipoUsuario = 0; // 0 = criador, 1 = setor envolvido, 2 = TI, 3 = qualquer outro
                     }
                     else{
-                        let setor = await database.query(`SELECT se.setor_idsetor FROM setoresenvolvidos se JOIN colaborador c ON se.setor_idsetor = c.setor WHERE se.crm_idcrm = ${retorno.idcrm} AND se.crm_versao = ${retorno.versao} AND c.idcolaborador = '${req.session.matricula}';`);
+                        let setor = await database.query(`SELECT se.setor_idsetor, se.flagsetor FROM setoresenvolvidos se JOIN colaborador c ON se.setor_idsetor = c.setor WHERE se.crm_idcrm = ${retorno.idcrm} AND se.crm_versao = ${retorno.versao} AND c.idcolaborador = '${req.session.matricula}';`);
+                        console.log(setor[0])
                         if (setor[0].length > 0){
                             tipoUsuario = 1;
+                            if(setor[0][0].flagsetor !== null) {
+                                crmAvaliada = true
+                            } else {
+                                crmAvaliada = false
+                            }
                         }
                         else{
                             let setor = await database.query(`SELECT idsetor FROM setor WHERE is_ti = true AND idsetor = ${req.session.setor}`);
                             if (setor[0].length > 0){
                                 tipoUsuario = 2;
+                                if (retorno.flagti !== null){
+                                    crmAvaliada = true;
+                                }
+                                else{
+                                    crmAvaliada = false;
+                                }
                             }
                             else{
                                 tipoUsuario = 3;
                             }
                         }
                     }
-                    console.log(setores[0]);
-                    res.render('info-crm', {dados: retorno, id: req.query.id, usuario: tipoUsuario, setores: setores[0]});
+                    console.log(setores[0], tipoUsuario, crmAvaliada);
+                    res.render('info-crm', {dados: retorno, id: req.query.id, usuario: tipoUsuario, setores: setores[0], avaliacao: crmAvaliada});
                 }
             }
         }
         catch(error){
-            res.render('erroUsuario', {erro: `Erro ao buscar CRM #${req.query.id}: ${error.message}`});
+            if (error.message === 'Cannot read property \'versao\' of null'){
+                error.message = 'CRM não existe!';
+            }
+            res.status(404).render('erroUsuario', {erro: `Erro ao buscar CRM #${req.query.id}: ${error.message}`});
         }
     }
 });
@@ -341,7 +357,6 @@ app.post('/avaliarCRM', async function (req, res) {
             crm_idcrm: req.body.idcrm,
             crm_versao: req.body.versao,
             tipoavaliacao: feedback,
-            sugestoes: req.body.feedbackJust || null
         }, {transaction: c});
         let is_ti = await models.Setor.findOne({
             attributes: ['is_ti'],
@@ -376,7 +391,8 @@ app.post('/avaliarCRM', async function (req, res) {
                 });
             }
             await models.SetoresEnvolvidos.update({
-                flagsetor: false
+                flagsetor: false,
+                sugestoes: req.body.feedbackJust
             },
             {
                 where: {
