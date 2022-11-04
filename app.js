@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const database = require('./db');
 const models = require('./models');
+const sequelize = require('./db');
 const port = 3000;
 
 app.use(express.static(__dirname + '/styles'));
@@ -452,7 +453,8 @@ app.post('/arquivarCRM', async function (req, res) {
     console.log(versao.dataValues.versao);
     try{
         await models.Crm.update({
-            flagarquivamento: true
+            flagarquivamento: true,
+            dataarquivamento: database.literal('CURRENT_TIMESTAMP')
         },
         {
             where: {
