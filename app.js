@@ -89,10 +89,22 @@ app.route('/home')
         }
         else{
             try{
-                let retorno = await database.query(
-                    `SELECT DISTINCT ON (c.idcrm) c.idcrm, max(c.versao), c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome FROM crm c JOIN colaborador cc ON c.idcolaborador_criador = cc.idcolaborador WHERE c.idcolaborador_criador = '${req.session.matricula}' GROUP BY c.idcrm, c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome ORDER BY c.idcrm ASC, max(c.versao) DESC;`
-                );
-                res.render('tela-inicial', {crm: retorno[0], nome: req.session.nome});
+                let setor = await models.Setor.findOne({
+                    attributes: ['is_ti'],
+                    where: {
+                        idsetor: req.session.setor
+                    }
+                });
+                if (setor.is_ti){
+                    let retorno = await database.query(`SELECT DISTINCT ON (c.idcrm) c.idcrm, max(c.versao), c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome FROM crm c JOIN colaborador cc ON c.idcolaborador_criador = cc.idcolaborador GROUP BY c.idcrm, c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome ORDER BY c.idcrm ASC, max(c.versao) DESC`)
+                    res.render('tela-inicial', {crm: retorno[0], nome: req.session.nome});
+                }
+                else{
+                    let retorno = await database.query(
+                        `SELECT DISTINCT ON (c.idcrm) c.idcrm, max(c.versao), c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome FROM crm c JOIN colaborador cc ON c.idcolaborador_criador = cc.idcolaborador WHERE c.idcolaborador_criador = '${req.session.matricula}' GROUP BY c.idcrm, c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome ORDER BY c.idcrm ASC, max(c.versao) DESC;`
+                    );
+                    res.render('tela-inicial', {crm: retorno[0], nome: req.session.nome});
+                }
             }
             catch (error){
                 res.render('erroUsuario', {erro: 'Erro ao carregar CRMs'});
@@ -291,6 +303,7 @@ app.get('/dadosCRM', async function (req, res) {
                     },
                     order: [['versao', 'DESC']]
                 });
+                console.log(retorno);
                 let setores = await database.query(`SELECT s.nomesetor, se.flagsetor, se.sugestoes FROM setor s JOIN setoresenvolvidos se ON se.setor_idsetor = s.idsetor WHERE se.crm_idcrm = ${parseInt(req.query.id)} AND se.crm_versao = ${parseInt(retorno.versao)}`);
                 if (retorno === null) {
                     throw {message: 'CRM não existe!'};
@@ -305,9 +318,9 @@ app.get('/dadosCRM', async function (req, res) {
                         if (setor[0].length > 0){
                             tipoUsuario = 1;
                             if(setor[0][0].flagsetor !== null) {
-                                crmAvaliada = true
+                                crmAvaliada = true;
                             } else {
-                                crmAvaliada = false
+                                crmAvaliada = false;
                             }
                         }
                         else{
@@ -320,6 +333,13 @@ app.get('/dadosCRM', async function (req, res) {
                                 else{
                                     crmAvaliada = false;
                                 }
+                                var tiPendente = await database.query(`SELECT count(*) FROM setoresenvolvidos WHERE crm_idcrm = ${retorno.idcrm} AND crm_versao = ${retorno.versao} AND flagsetor IS NOT true`);
+                                if(parseInt(tiPendente[0][0].count) > 0) {
+                                    tiPendente = false;
+                                }
+                                else{
+                                    tiPendente = true;
+                                }
                             }
                             else{
                                 tipoUsuario = 3;
@@ -327,7 +347,7 @@ app.get('/dadosCRM', async function (req, res) {
                         }
                     }
                     console.log(setores[0], tipoUsuario, crmAvaliada);
-                    res.render('info-crm', {dados: retorno, id: req.query.id, usuario: tipoUsuario, setores: setores[0], avaliacao: crmAvaliada});
+                    res.render('info-crm', {dados: retorno, id: req.query.id, usuario: tipoUsuario, setores: setores[0], avaliacao: crmAvaliada, tiPendente: tiPendente});
                 }
             }
         }
@@ -344,13 +364,20 @@ app.get('/dadosCRM', async function (req, res) {
 
 app.post('/avaliarCRM', async function (req, res) {
     const c = await database.transaction();
-    if(req.body.feedback === 'aprovado'){
-        var feedback = true
-    }
-    else{
-        var feedback = false
-    }
+    console.log(c);
     try{
+        if(req.body.feedback === 'aprovado'){
+            var feedback = true
+        }
+        else{
+            if(req.body.feedback === 'reprovado'){
+                var feedback = false
+            }
+            else{
+                throw {message: 'Insira um feedback válido.'};
+            }
+        }
+        console.log(req.body)
         await models.FeedbackCRM.create({
             colaborador_idcolaborador: req.session.matricula,
             crm_idcrm: req.body.idcrm,
@@ -431,18 +458,21 @@ app.post('/avaliarCRM', async function (req, res) {
             }
         }
         await c.commit();
-        let status = await database.query(`SELECT count(*), c.flagti FROM setoresenvolvidos s JOIN crm c ON s.crm_idcrm = c.idcrm AND s.crm_versao = c.versao WHERE s.crm_idcrm = ${req.body.idcrm} AND s.crm_versao = ${req.body.versao} AND s.flagsetor IS NOT true GROUP BY c.flagti`);
+        let status = await database.query(`SELECT count(*) FROM setoresenvolvidos s JOIN crm c ON s.crm_idcrm = c.idcrm AND s.crm_versao = c.versao WHERE s.crm_idcrm = ${req.body.idcrm} AND s.crm_versao = ${req.body.versao} AND s.flagsetor IS NOT true`);
         console.log(status[0]);
-        if(status[0].length === 0){
-            await models.Crm.update({
-                etapaprocesso: 2
-            },
-            {
-                where: {
-                    idcrm: req.body.idcrm,
-                    versao: req.body.versao
-                }
-            });
+        if(status[0][0].count == 0){
+            let status = await database.query(`SELECT flagti FROM crm WHERE idcrm = ${req.body.idcrm} AND versao = ${req.body.versao}`)
+            if (status[0][0].flagti === true){
+                await models.Crm.update({
+                    etapaprocesso: 2
+                },
+                {
+                    where: {
+                        idcrm: req.body.idcrm,
+                        versao: req.body.versao
+                    }
+                });
+            }
         }
         res.redirect('/home');
     } catch(error){

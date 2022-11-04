@@ -84,7 +84,7 @@
                 <% }) %>
             </table>
         </div>
-        <% if ((usuario === 1 || usuario === 2) && avaliacao === false && dados.flagarquivamento === false) { %>
+        <% if ((usuario === 1 || (usuario === 2 && tiPendente === true)) && avaliacao === false && dados.flagarquivamento === false) { %>
             <h3>Deixe o seu feedback da CRM</h3>
             <form action="/avaliarCRM" method="POST" id="formAvaliacao">
                 <input type="number" name="idcrm" value="<%= dados.idcrm %>" hidden>
@@ -99,7 +99,7 @@
                 <button type="submit">Enviar feedback</button>
             </form>
         <% } %>
-        <% if (usuario === 0 && dados.flagarquivamento === false) { %>
+        <% if (usuario === 0 && dados.flagarquivamento === false && (dados.etapaprocesso === 0 || dados.etapaprocesso === 2)) { %>
             <form id="arquivar" action="/arquivarCRM" method="post">
                 <input type="number" name="idcrm" value="<%= id %>" hidden>
                 <input type="submit" value="Arquivar CRM">

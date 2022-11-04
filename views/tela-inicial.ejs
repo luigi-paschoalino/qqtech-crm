@@ -51,6 +51,9 @@
                             <p>Última versão: <%= item.max %> (<%= item.dataabertura %>)</p>
                         </span>
                         <p>Responsável: <%= item.nome %> <%= item.sobrenome %></p>
+                        <% if (item.flagarquivamento === false && item.etapaprocesso === 2) { %>
+                            <p style="color: green;">Aguardando arquivamento</p>
+                        <% } %>
                         <a href="/dadosCRM?id=<%= item.idcrm %>"><p class="crmDetails">Mais detalhes</p></a>
                     </div>
                 <% } %>
@@ -66,7 +69,7 @@
                             <p>Última versão: <%= item.max %> (<%= item.dataabertura %>)</p>
                         </span>
                         <p>Responsável: <%= item.nome %> <%= item.sobrenome %></p>
-                        <% if(item.etapaprocesso === 3) { %>
+                        <% if(item.etapaprocesso === 2) { %>
                             <p style="color: green">Concluído</p>
                         <% } else { %>
                             <p style="color: red">Interrompido</p>
