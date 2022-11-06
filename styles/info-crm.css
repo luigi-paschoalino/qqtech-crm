@@ -4,8 +4,54 @@
     flex-direction: column;
     justify-content: center;
     padding: 1rem;
-    max-width: 70vw;
+    width: 80vw;
     font-size: 110%;
+}
+
+#infoCRM #infoCRM-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#crmOptions{
+    display: flex;
+    flex-direction: column;
+}
+
+#arquivar{
+    margin-left: auto;
+    margin-top: 30px;
+}
+
+#arquivar input[type="submit"]{
+    background-color: #ff2a2a;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+button, input[type="submit"]{
+    margin: 10px;
+    padding: 10px;
+    background-color: rgb(100, 100, 100);
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+    color: white;
+    font-weight: bold;
+}
+
+textarea{
+    width: 100%;
+    resize: none;
+    font-size: large;
 }
 
 table{
@@ -42,4 +88,6 @@ a:hover{
     margin-right: auto;
     align-items: center;
     font-weight: bold;
+    width: 100%;
+    text-align: justify;
 }

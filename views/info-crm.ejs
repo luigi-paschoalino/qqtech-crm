@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Informações do requerimento</title>
+    <link rel="stylesheet" href="common-style.css">
+    <link rel="stylesheet" href="info-crm.css">
+    <script src="info-crm.js" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <div id="infoCRM">
+        <div id="infoCRM-header">
+            <div id=title>
+                <a href="/home">Voltar</a>
+                <h1>Informações do requerimento</h1>
+                <% if (dados.flagarquivamento === true) { %>
+                    <% if (dados.etapaprocesso === 2) { %>
+                        <h3 style="color: green;">CONCLUÍDO E ARQUIVADO</h3>
+                    <% } else { %>
+                        <h3 style="color: red;">INTERROMPIDO E ARQUIVADO</h3>
+                    <% } %>
+                <% } %>
+            </div>
+            <div id="crmOptions">
+                <a href="/changelog?id=<%= id %>">Histórico de versões</a>
+                <% if (usuario === 0 && dados.flagarquivamento === false && dados.etapaprocesso === 0) { %>
+                    <a href="/updateCRM?id=<%= id %>">Criar nova versão</a>
+                <% } %>
+            </div>
+        </div>
+        <h3>Descrição:</h3>
+        <div id="descricao" class="texto">
+            <p><%= dados.descricao %></p>
+        </div>
+        <h3>Objetivo:</h3>
+        <div id="objetivo" class="texto">
+            <p><%= dados.objetivo %></p>
+        </div>
+        <h3>Justificativa:</h3>
+        <div id="justificativa" class="texto">
+            <p><%= dados.justificativa %></p>
+        </div>
+        <% if (dados.comportamentoffline !== null) { %>
+            <h3>Comportamento offline:</h3>
+            <div id="comportamentooffline" class="texto">
+                <p><%= dados.comportamentooffline %></p>
+            </div>
+        <% } %>
+        <h3>Documentos:</h3>
+        <div id="documentos">
+            <ul>
+                <% documentos.forEach(documento => { %>
+                    <li><a href="/download?id=<%= documento.iddocumento %>" target="_blank"><%= documento.nomedoc %></a></li>
+                <% }) %>
+            </ul>
+        </div>
+        <h3>Setores envolvidos</h3>
+        <div id="setoresTabela">
+            <table>
+                <tr>
+                    <th>Setor</th>
+                    <th>Feedback do setor</th>
+                    <th>Justificativa</th>
+                </tr>
+                <% setores.forEach(setor => { %>
+                    <tr>
+                        <th><%= setor.nomesetor %></th>
+                        <% if (setor.flagsetor === false) { %>
+                            <th>NEGADO</th>
+                        <% } else { %>
+                            <% if (setor.flagsetor === true) { %>
+                                <th>APROVADO</th>
+                            <% } else { %>
+                                <th>PENDENTE</th>
+                            <% } %>
+                        <% } %>
+                        <th><%= setor.sugestoes %></th>
+                    </tr>
+                <% }) %>
+            </table>
+        </div>
+        <% if ((usuario === 1 || (usuario === 2 && tiPendente === true)) && avaliacao === false && dados.flagarquivamento === false) { %>
+            <h3>Deixe o seu feedback da CRM</h3>
+            <form action="/avaliarCRM" method="POST" id="formAvaliacao">
+                <input type="number" name="idcrm" value="<%= dados.idcrm %>" hidden>
+                <input type="number" name="versao" value="<%= dados.versao %>" hidden>
+                <label for="feedback">Feedback:</label>
+                <input type="radio" name="feedback" value="aprovado">Aprovado
+                <input type="radio" name="feedback" value="reprovado">Reprovado<br>
+                <div id="divJust">
+                    <p>Justificativa:</p>
+                    <textarea name="feedbackJust" id="feedbackJust" rows="10" required disabled></textarea><br>
+                </div>
+                <button type="submit">Enviar feedback</button>
+            </form>
+        <% } %>
+        <% if (usuario === 0 && dados.flagarquivamento === false && (dados.etapaprocesso === 0 || dados.etapaprocesso === 2)) { %>
+            <form id="arquivar" action="/arquivarCRM" method="post">
+                <input type="number" name="idcrm" value="<%= id %>" hidden>
+                <input type="submit" value="Arquivar CRM">
+            </form>
+        <% } %>
+        <% if (dados.flagarquivamento === true) { %>
+            <h3>Requerimento arquivado em: <%= dados.dataarquivamento %></h3>
+        <% } %>
+    </div>
+</body>
+</html>

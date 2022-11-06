@@ -5,25 +5,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Cadastrar usuário</title>
-    <link rel="stylesheet" href="../styles/common-style.css">
-    <link rel="stylesheet" href="../styles/cadastrar-usuario.css">
-    <script src="../scripts/cadastrar-usuario.js" defer></script>
+    <link rel="stylesheet" href="common-style.css">
+    <link rel="stylesheet" href="cadastrar-usuario.css">
+    <script src="cadastrar-usuario.js" defer></script>
 </head>
 <body>
     <div id="formDiv">
-        <form action="/cadastrar-usuario" method="POST">
+        <form action="/addUser" method="POST">
             <h2>Cadastro de usuário</h2>
             <input type="text" name="nome" placeholder="Primeiro nome"><br>
             <input type="text" name="sobrenome" placeholder="Sobrenome"><br>
             <input type="email" name="email" placeholder="Endereço de e-mail" pattern=".+@quero-quero.com.br"><br>
             <input type="text" name="matricula" placeholder="Matrícula"><br>
-            <input type="password" name="password" placeholder="Senha"><br>
-            <input type="password" name="confirmPassword" placeholder="Confirme a senha"><br>
+            <input type="password" name="senha" placeholder="Senha"><br>
+            <input type="password" name="confSenha" placeholder="Confirme a senha"><br>
             <select name="setor">
-                <option value="" disabled selected>Selecione um setor</option>
-                <option value="Mercantil">Mercantil</option>
-                <option value="Financeiro">Financeiro</option>
-                <option value="RH">Recursos Humanos</option>
+                <% setores.forEach(setor => { %>
+                    <option value="<%= setor.idsetor %>"><%= setor.nomesetor %></option>
+                <% }); %>
             </select><br>
             <input type="submit" value="Cadastrar">
     </div>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Tela inicial</title>
+    <link rel="stylesheet" href="common-style.css">
+    <link rel="stylesheet" href="tela-inicial.css">
+    <script src="tela-inicial.js"></script>
+</head>
+<body>
+    <header>
+        Seja bem-vindo, <%= nome %>!
+        <a href="/createCRM">Criar requerimento</a>
+        <a href="/addUser">Adicionar colaborador</a>
+        <a href="/logout">Sair</a>
+    </header>
+    <div id="divPesquisa">
+        <form action="/dadosCRM" method="get">
+            <input type="text" name="id" placeholder="Pesquisar por CRM">
+            <input type="submit" value="Pesquisar">
+        </form>
+    </div>
+    <div id="colunasCRM">
+        <div id="pendentes" class="colunaCRM">
+            <h3>PENDENTES</h3>
+            <% crm.forEach(item => { %>
+                <% if(item.etapaprocesso === 0 && item.flagarquivamento !== true || item.etapaprocesso === 1 && item.flagarquivamento !== true) { %>
+                    <div class="crm">
+                        <p><%= item.descricao %> - #<%= item.idcrm %></p>
+                        <span class="crmDates">
+                            <p>Última versão: <%= item.max %> (<%= item.dataabertura %>)</p>
+                        </span>
+                        <p>Responsável: <%= item.nome %> <%= item.sobrenome %></p>
+                        <% if (item.etapaprocesso === 0) { %>
+                            <p style="color: red">Versão recusada</p>
+                        <% } %>
+                        <a href="/dadosCRM?id=<%= item.idcrm %>"><p class="crmDetails">Mais detalhes</p></a>
+                    </div>
+                <% } %>
+            <% }) %>
+        </div>
+        <div id="aprovados" class="colunaCRM">
+            <h3>APROVADOS</h3>
+            <% crm.forEach(item => { %>
+                <% if(item.etapaprocesso === 2 && item.flagarquivamento !== true) { %>
+                    <div class="crm">
+                        <p><%= item.descricao %> - #<%= item.idcrm %></p>
+                        <span class="crmDates">
+                            <p>Última versão: <%= item.max %> (<%= item.dataabertura %>)</p>
+                        </span>
+                        <p>Responsável: <%= item.nome %> <%= item.sobrenome %></p>
+                        <% if (item.flagarquivamento === false && item.etapaprocesso === 2) { %>
+                            <p style="color: green;">Aguardando arquivamento</p>
+                        <% } %>
+                        <a href="/dadosCRM?id=<%= item.idcrm %>"><p class="crmDetails">Mais detalhes</p></a>
+                    </div>
+                <% } %>
+            <% }) %>
+        </div>
+        <div id="arquivados" class="colunaCRM">
+            <h3>ARQUIVADOS</h3>
+            <% crm.forEach(item => { %>
+                <% if(item.flagarquivamento === true) { %>
+                    <div class="crm">
+                        <p><%= item.descricao %> - #<%= item.idcrm %></p>
+                        <span class="crmDates">
+                            <p>Última versão: <%= item.max %> (<%= item.dataabertura %>)</p>
+                        </span>
+                        <p>Responsável: <%= item.nome %> <%= item.sobrenome %></p>
+                        <% if(item.etapaprocesso === 2) { %>
+                            <p style="color: green">Concluído</p>
+                        <% } else { %>
+                            <p style="color: red">Interrompido</p>
+                        <% } %>
+                        <a href="/dadosCRM?id=<%= item.idcrm %>"><p class="crmDetails">Mais detalhes</p></a>
+                    </div>
+                <% } %>
+            <% }) %>
+        </div>
+    </div>
+</body>
+</html>

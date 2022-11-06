@@ -5,6 +5,12 @@ textarea{
     -moz-border-radius: 5px;
     border-radius: 7px;
     font-size: large;
+    resize: none;
+    width: 100%;
+}
+
+textarea:read-only{
+    background-color: #bbbbbb;
 }
 
 #cadastro{text-align: center;}
@@ -31,23 +37,16 @@ textarea{
     cursor: pointer;
 }
 
-#addSetor{
-    background-color: rgb(214, 214, 214);
-    color: rgb(0, 0, 0);
-    border: 1px solid rgb(17, 17, 17);
-    border-radius: 5px;
-    padding: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-left: 20px;
-}
-
-#addSetor:hover{
-    background-color: rgb(0, 0, 0);
-    color: rgb(214, 214, 214);
+#setores{
+    flex-direction: row;
 }
 
 #cancelar:hover{background-color: rgb(220, 0, 0);}
 
 #enviar:hover{background-color: rgb(0, 220, 0);}
+
+@media screen and (max-width: 600px) {
+    #cadastro{
+        width: 90%;
+    }
+}

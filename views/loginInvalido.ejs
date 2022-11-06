@@ -5,18 +5,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Login</title>
-    <link rel="stylesheet" href="../styles/common-style.css">
-    <link rel="stylesheet" href="../styles/login.css">
-    <script src="../scripts/login.js" defer></script>
+    <link rel="stylesheet" href="common-style.css">
+    <link rel="stylesheet" href="login.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="login.js" defer></script>
 </head>
 <body>
     <div id="loginSquare">
         <div id="formDiv">
             <h1>Faça o login para<br>acessar a plataforma</h1>
+            <h3 style="color: red; text-align: center;">Matrícula ou senha incorretas,<br>tente novamente!</h3>
             <form action="/login" method="POST">
                 <input type="text" name="matricula" placeholder="Matrícula"><br>
-                <input type="password" name="password" placeholder="Senha"><br>
-                <input type="submit" value="Entrar">
+                <input type="password" name="senha" placeholder="Senha"><br>
+                <input type="submit" value="Entrar" id="submit">
             </form>    
         </div>
     </div>

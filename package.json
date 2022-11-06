@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "cookie-parser": "^1.4.6",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "express-session": "^1.17.3",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.8.0",
+    "sequelize": "^6.25.2"
+  },
+  "name": "qqtech-crm",
+  "description": "",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luigi-paschoalino/qqtech-crm.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luigi-paschoalino/qqtech-crm/issues"
+  },
+  "homepage": "https://github.com/luigi-paschoalino/qqtech-crm#readme"
+}
