@@ -13,6 +13,7 @@
 <body>
     <div id="changelog">
     <h1>Histórico de alterações</h1>
+    <a href="/home">Voltar</a>
         <!-- https://www.w3schools.com/howto/howto_js_accordion.asp -->
         <% crm.forEach(version => { %>
             <div class="changelogDesc">
@@ -37,6 +38,14 @@
                     <div class="changelog">
                         <h3>Changelog:</h3>
                         <p><%= version.changelog %></p>
+                    </div>
+                    <div>
+                        <h3>Documentos:</h3>
+                        <% documentos.forEach(doc => { %>
+                            <% if (doc.crm_versao == version.versao) { %>
+                                <p><a href="/download?id=<%= doc.iddocumento %>" target="_blank"><%= doc.nomedoc %></a></p>
+                            <% } %>
+                        <% }) %>
                     </div>
                 </div>
             </div>

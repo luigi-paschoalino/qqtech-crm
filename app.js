@@ -42,7 +42,8 @@ app.get('/changelog', async function (req, res) {
         let retorno = await database.query(`SELECT * FROM crm WHERE idcrm = ${req.query.id}`);
         if (retorno[0].length > 0) {
             let data = await database.query(`SELECT * FROM crm WHERE idcrm = ${req.query.id} ORDER BY idcrm DESC, versao DESC`);
-            res.render('changelog-crm', { crm: data[0] });
+            let documentos = await database.query(`SELECT * FROM documento WHERE crm_idcrm = ${req.query.id} ORDER BY crm_versao DESC`);
+            res.render('changelog-crm', { crm: data[0], documentos: documentos[0] });
         }
         else {
             res.render('erroUsuario', { erro: 'CRM não encontrado' });
@@ -248,7 +249,6 @@ app.route('/updateCRM')
             }
         }
     });
-
 
 app.route('/createCRM')
     .get(async function (req, res) {
@@ -463,7 +463,7 @@ app.get('/dadosCRM', async function (req, res) {
                             }
                         }
                     }
-                    let documentos = await database.query(`SELECT * FROM documento WHERE crm_idcrm = ${retorno.idcrm} AND crm_versao = ${retorno.versao} ORDER BY enderecodoc ASC`);
+                    let documentos = await database.query(`SELECT * FROM documento WHERE crm_idcrm = ${retorno.idcrm} AND crm_versao = ${retorno.versao} ORDER BY nomedoc ASC`);
                     console.log(setores[0], tipoUsuario, crmAvaliada, documentos[0]);
                     res.render('info-crm', { dados: retorno, id: req.query.id, usuario: tipoUsuario, setores: setores[0], avaliacao: crmAvaliada, tiPendente: tiPendente, documentos: documentos[0] });
                 }
