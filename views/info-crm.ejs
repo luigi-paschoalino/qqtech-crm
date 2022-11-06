@@ -52,11 +52,9 @@
         <h3>Documentos:</h3>
         <div id="documentos">
             <ul>
-                <li><a href="#">Documento 1</a></li>
-                <li><a href="#">Documento 2</a></li>
-                <li><a href="#">Documento 3</a></li>
-                <li><a href="#">Documento 4</a></li>
-                <li><a href="#">Documento 5</a></li>
+                <% documentos.forEach(documento => { %>
+                    <li><a href="/download?id=<%= documento.iddocumento %>" target="_blank"><%= documento.nomedoc %></a></li>
+                <% }) %>
             </ul>
         </div>
         <h3>Setores envolvidos</h3>

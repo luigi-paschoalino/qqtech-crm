@@ -142,6 +142,10 @@ const Documento = database.define('documento', {
     enderecodoc: {
         type: Sequelize.STRING,
         allowNull: false
+    },
+    nomedoc: {
+        type: Sequelize.STRING,
+        allowNull: false
     }
 },
 {
