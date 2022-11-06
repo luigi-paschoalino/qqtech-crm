@@ -118,7 +118,7 @@ app.route('/home')
                 }
                 else {
                     let retorno = await database.query(
-                        `SELECT DISTINCT ON (c.idcrm) c.idcrm, max(c.versao), c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome FROM crm c JOIN colaborador cc ON c.idcolaborador_criador = cc.idcolaborador WHERE c.idcolaborador_criador = '${req.session.matricula}' GROUP BY c.idcrm, c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, cc.nome, cc.sobrenome ORDER BY c.idcrm ASC, max(c.versao) DESC;`
+                        `SELECT DISTINCT ON (c.idcrm) c.idcrm, max(c.versao), c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, co2.nome, co2.sobrenome FROM crm c join setoresenvolvidos s on c.idcrm = s.crm_idcrm and c.versao = s.crm_versao  join colaborador co on co.setor = s.setor_idsetor join colaborador co2 on co2.idcolaborador = c.idcolaborador_criador where co.idcolaborador = '${req.session.matricula}' group by c.idcrm, c.descricao, c.dataabertura, c.etapaprocesso, c.flagarquivamento, co2.nome, co2.sobrenome order by c.idcrm asc, max(c.versao) desc`
                     );
                     res.render('tela-inicial', { crm: retorno[0], nome: req.session.nome });
                 }
